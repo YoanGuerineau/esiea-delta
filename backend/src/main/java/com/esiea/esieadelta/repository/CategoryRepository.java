@@ -1,5 +1,9 @@
 package com.esiea.esieadelta.repository;
 
-public class CategoryRepository {
+import org.springframework.data.repository.CrudRepository;
+
+import com.esiea.esieadelta.model.Category;
+
+public interface CategoryRepository extends CrudRepository<Category, Integer> {
 
 }
