@@ -19,16 +19,22 @@ const Header = (props) => {
       justifyContent="center"
       w="100%"
       align="center"
-      color="black"
-      backgroundColor="white"
-      borderBottomWidth={1}
-      borderBottomColor={"blackAlpha.200"}
       {...props}
     >
       <Flex
         w="1024px"
         maxW="1024px"
       >
+        <Button
+        marginRight="2"
+          size="md"
+          w="12"
+          bg="black"
+          color="white"
+          fontSize="7xl"
+        >
+          Δ
+        </Button>
         <Heading
           as="h1"
           size="lg"
@@ -37,7 +43,7 @@ const Header = (props) => {
           <NavLink
             to="/"
           >
-            Δ Delta
+            Delta
           </NavLink>
         </Heading>
         <Spacer />
