@@ -10,6 +10,7 @@ import Home from './pages/home';
 import Read from './pages/read'
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import './css/style.css'
+import Create from './pages/create';
 
 function App() {
   return (
@@ -33,6 +34,7 @@ function App() {
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/read" element={<Read />} />
+                <Route path="/create" element={<Create />} />
               </Routes>
             </BrowserRouter>
           </Box>

@@ -33,32 +33,6 @@ function Home() {
 				<ArticleCard />
 				<ArticleCard />
 				<ArticleCard />
-				<ArticleCard />
-				<ArticleCard />
-				<ArticleCard />
-				<ArticleCard />
-				<ArticleCard />
-				<ArticleCard />
-				<ArticleCard />
-				<ArticleCard />
-				<ArticleCard />
-				<ArticleCard />
-				<ArticleCard />
-				<ArticleCard />
-				<ArticleCard />
-				<ArticleCard />
-				<ArticleCard />
-				<ArticleCard />
-				<ArticleCard />
-				<ArticleCard />
-				<ArticleCard />
-				<ArticleCard />
-				<ArticleCard />
-				<ArticleCard />
-				<ArticleCard />
-				<ArticleCard />
-				<ArticleCard />
-				<ArticleCard />
 			</VStack>
 		</Box>
 	);

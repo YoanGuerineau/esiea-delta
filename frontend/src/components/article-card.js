@@ -6,7 +6,8 @@ import {
     Text,
 	HStack,
 	Tag,
-	Spacer
+	Spacer,
+	border
 } from "@chakra-ui/react";
 
 
@@ -19,10 +20,12 @@ function ArticleCard() {
 			p={2}
 			w="100%"
 			borderRadius={8}
+			border="1px solid white"
 			_hover={{
 				background: "gray.50",
 				color: "teal.500",
-				cursor: "pointer"
+				cursor: "pointer",
+				border: "1px solid lightgray"
 			}}
 			onClick={handleOnClick}
 		>
