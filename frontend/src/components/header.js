@@ -20,6 +20,7 @@ const Header = (props) => {
       w="100%"
       align="center"
       {...props}
+      background="linear-gradient(#fff, rgba(255,255,255,0));"
     >
       <Flex
         w="1024px"
