@@ -22,6 +22,7 @@ import com.esiea.esieadelta.model.Article;
 import com.esiea.esieadelta.service.ArticleService;
 import com.esiea.esieadelta.service.NotAllowedException;
 import com.esiea.esieadelta.service.NotFoundException;
+import com.esiea.esieadelta.wrapper.article.CompleteArticle;
 
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController
@@ -32,35 +33,35 @@ public class ArticleController {
 	private ArticleService articleService;
 
 	@GetMapping("")
-	public Iterable<Article> getArticles() {
+	public List<CompleteArticle> getArticles() {
 		return articleService.getArticles();
 	}
 
 	@GetMapping("/{id}")
-	public ResponseEntity<Article> getArticle(@PathVariable("id") Integer id) {
+	public ResponseEntity<CompleteArticle> getArticle(@PathVariable("id") Integer id) {
 		try {
-			Article article = articleService.getArticle(id);
-			return new ResponseEntity<Article>(article, HttpStatus.OK);
+			CompleteArticle article = articleService.getArticle(id);
+			return new ResponseEntity<CompleteArticle>(article, HttpStatus.OK);
 		} catch (NotFoundException e) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 	}
 
 	@GetMapping("/search")
-	public Iterable<Article> getArticlesByKeyword(@RequestParam("query") String keyword) {
-		List<Article> titlesMatching = (List<Article>) articleService.getArticlesByTitle(keyword);
-		List<Article> contentsMatching = (List<Article>) articleService.getArticlesByContent(keyword);
-		List<Article> results = new ArrayList<>();
+	public List<CompleteArticle> getArticlesByKeyword(@RequestParam("query") String keyword) {
+		List<CompleteArticle> titlesMatching = articleService.getArticlesByTitle(keyword);
+		List<CompleteArticle> contentsMatching = articleService.getArticlesByContent(keyword);
+		List<CompleteArticle> results = new ArrayList<>();
 		results.addAll(titlesMatching);
 		results.addAll(contentsMatching);
 		return results;
 	}
 
 	@PostMapping("")
-	public ResponseEntity<Article> addArticle(@RequestBody Article article) {
+	public ResponseEntity<CompleteArticle> addArticle(@RequestBody Article article) {
 		try {
-			article = articleService.createArticle(article);
-			return new ResponseEntity<Article>(article, HttpStatus.OK);
+			CompleteArticle completeArticle = articleService.createArticle(article);
+			return new ResponseEntity<CompleteArticle>(completeArticle, HttpStatus.OK);
 		} catch (NotAllowedException e) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
@@ -77,19 +78,19 @@ public class ArticleController {
 	}
 
 	@PutMapping("")
-	public ResponseEntity<Article> replaceArticle(@RequestBody Article article) {
+	public ResponseEntity<CompleteArticle> replaceArticle(@RequestBody Article article) {
 		try {
-			article = articleService.updateArticle(article);
-			return new ResponseEntity<Article>(article, HttpStatus.OK);
+			CompleteArticle completeArticle = articleService.updateArticle(article);
+			return new ResponseEntity<CompleteArticle>(completeArticle, HttpStatus.OK);
 		} catch (NotFoundException e) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 	}
 
 	@PatchMapping("")
-	public ResponseEntity<Article> partialReplaceArticle(@RequestBody Article article) {
+	public ResponseEntity<CompleteArticle> partialReplaceArticle(@RequestBody Article article) {
 		try {
-			Article existingArticle = articleService.getArticle(article.getId());
+			CompleteArticle existingArticle = articleService.getArticle(article.getId());
 			if (article.getTitle() != null && !article.getTitle().equals(existingArticle.getTitle())) {
 				existingArticle.setTitle(article.getTitle());
 			}
@@ -107,7 +108,7 @@ public class ArticleController {
 				existingArticle.setCategories(article.getCategories());
 			}
 			existingArticle = articleService.updateArticle(existingArticle);
-			return new ResponseEntity<Article>(existingArticle, HttpStatus.OK);
+			return new ResponseEntity<CompleteArticle>(existingArticle, HttpStatus.OK);
 		} catch (NotFoundException exception) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
