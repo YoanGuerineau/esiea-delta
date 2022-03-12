@@ -3,7 +3,6 @@ package com.esiea.esieadelta.service;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
 import org.springframework.stereotype.Service;
 
 import com.esiea.esieadelta.model.Category;
@@ -15,12 +14,8 @@ public class CategoryService {
 	@Autowired
 	private CategoryRepository categoryRepository;
 	
-	public Category createCategory(Category category) throws NotAllowedException {
-		if (category.getId() == null) {
-			return categoryRepository.save(category);
-		} else {
-			throw new NotAllowedException();
-		}
+	public Category saveCategory(Category category) {
+		return categoryRepository.save(category);
 	}
 	
 	public Iterable<Category> getCategories() {
