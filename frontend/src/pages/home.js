@@ -5,8 +5,7 @@ import {
     VStack,
 	InputGroup,
 	InputLeftElement,
-	Input,
-	Spacer
+	Input
 } from "@chakra-ui/react";
 import ArticleCard from '../components/article-card';
 import { SearchIcon } from '@chakra-ui/icons'

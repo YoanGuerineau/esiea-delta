@@ -6,8 +6,7 @@ import {
     Text,
 	HStack,
 	Tag,
-	Spacer,
-	border
+	Spacer
 } from "@chakra-ui/react";
 
 

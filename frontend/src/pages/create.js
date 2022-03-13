@@ -14,6 +14,10 @@ import {
     Input,
     Textarea,
     Button,
+    Select,
+    Tag,
+    TagLabel,
+    TagCloseButton
 } from "@chakra-ui/react";
 import { ArrowBackIcon, ChevronRightIcon } from '@chakra-ui/icons'
 
@@ -41,14 +45,37 @@ function Create() {
                 </HStack>
                 <Heading m={2}>Écrire un article</Heading>
                 <FormControl isRequired m="2" w="100%">
-                    <FormLabel htmlFor='text'>Titre</FormLabel>
-                    <Input id='email' type='text' />
-                    <Box p="2" />
-                    <FormLabel htmlFor='text'>Contenu</FormLabel>
-                    <Textarea
-                      placeholder='Écrire un article au format Markdown'
-                      size='sm'
-                    />
+                    <VStack spacing={2} align="flex-start">
+                        <FormLabel htmlFor='text'>Ajouter une catégorie</FormLabel>
+                        <Select placeholder='Catégories existantes'>
+                          <option value='option1'>Catégorie 1</option>
+                          <option value='option2'>Catégorie 2</option>
+                          <option value='option3'>Catégorie 3</option>
+                        </Select>
+                        <Input type='text' placeholder='Créer une catégorie'/>
+                        <HStack spacing={4}>
+                            <Tag
+                                size="md"
+                              borderRadius='full'
+                              colorScheme="green"
+                            >
+                              <TagLabel>#Catégorie 1</TagLabel>
+                              <TagCloseButton />
+                            </Tag>
+                        </HStack>
+                        <Box h={4} />
+                        <FormLabel htmlFor='text'>Titre</FormLabel>
+                        <Input type='text' />
+                        <Box h={4} />
+                        <FormLabel htmlFor='text'>Contenu</FormLabel>
+                        <Textarea
+                          placeholder='Écrire un article au format Markdown'
+                          size='sm'
+                        />
+                        <Box h={4} />
+                        <FormLabel htmlFor='text'>Auteur</FormLabel>
+                        <Input type='text' />
+                    </VStack>
                 </FormControl>
                 <Button>Envoyer</Button>
             </VStack>
