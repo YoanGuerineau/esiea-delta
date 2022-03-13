@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     Box,
@@ -17,13 +17,22 @@ import {
     Select,
     Tag,
     TagLabel,
-    TagCloseButton
+    TagCloseButton,
+    Accordion,
+    AccordionItem,
+    AccordionButton,
+    AccordionIcon,
+    AccordionPanel
 } from "@chakra-ui/react";
 import { ArrowBackIcon, ChevronRightIcon } from '@chakra-ui/icons'
+import ChakraUIRenderer from 'chakra-ui-markdown-renderer';
+import ReactMarkdown from 'react-markdown'
 
 function Create() {
     const navigate = useNavigate();
     const handleOnClick = useCallback(() => navigate('/', { replace: true }), [navigate]);
+
+    const [markedContent, setMarkedContent] = useState('');
 
     return (
         <Box>
@@ -71,6 +80,7 @@ function Create() {
                         <Textarea
                           placeholder='Écrire un article au format Markdown'
                           size='sm'
+                          onChange={(event) => {setMarkedContent(event.target.value)}}
                         />
                         <Box h={4} />
                         <FormLabel htmlFor='text'>Auteur</FormLabel>
@@ -78,6 +88,22 @@ function Create() {
                     </VStack>
                 </FormControl>
                 <Button>Envoyer</Button>
+                <Box h={4} />
+                <Accordion w="100%" allowToggle>
+                  <AccordionItem>
+                    <h2>
+                      <AccordionButton>
+                        <Box flex='1' textAlign='left'>
+                          Aperçu
+                        </Box>
+                        <AccordionIcon />
+                      </AccordionButton>
+                    </h2>
+                    <AccordionPanel>
+                        <ReactMarkdown components={ChakraUIRenderer()} children={markedContent} skipHtml />
+                    </AccordionPanel>
+                  </AccordionItem>
+                </Accordion>
             </VStack>
         </Box>
     );
