@@ -1,15 +1,19 @@
-import React from "react";
+import React, { useCallback } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   Heading,
   Flex,
   Spacer,
   Button
 } from "@chakra-ui/react";
-import { BrowserRouter as NavLink } from "react-router-dom";
 import { EditIcon } from "@chakra-ui/icons"
 
 
-const Header = (props) => {
+function Header() {
+  const navigate = useNavigate();
+	const handleOnClick = useCallback(() => navigate('/create', { replace: true }), [navigate]);
+
+
   return (
     <Flex
       as="nav"
@@ -19,7 +23,6 @@ const Header = (props) => {
       justifyContent="center"
       w="100%"
       align="center"
-      {...props}
       background="linear-gradient(#fff, rgba(255,255,255,0));"
     >
       <Flex
@@ -41,11 +44,7 @@ const Header = (props) => {
           size="lg"
           letterSpacing={"tighter"}
         >
-          <NavLink
-            to="/"
-          >
-            Delta
-          </NavLink>
+          <Link to="/">Delta</Link>
         </Heading>
         <Spacer />
         <Button
@@ -53,6 +52,7 @@ const Header = (props) => {
           leftIcon={<EditIcon />}
           variant="outline"
           borderRadius='full'
+          onClick={handleOnClick}
         >
           Écrire un article
         </Button>

@@ -17,29 +17,29 @@ function App() {
     <ChakraProvider
       theme={theme}
     >
-      <Box>
-        <Header />
-        <Flex
-          w="100%"
-          justifyContent="center"
-        >
-          <Box
-            p={6}
-            w="620px"
-            maxW="100%"
-            boxShadow="lg"
-            borderRadius={'2xl'}
+      <BrowserRouter>
+        <Box>
+          <Header />
+          <Flex
+            w="100%"
+            justifyContent="center"
           >
-            <BrowserRouter>
+            <Box
+              p={6}
+              w="620px"
+              maxW="100%"
+              boxShadow="lg"
+              borderRadius={'2xl'}
+            >
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/read" element={<Read />} />
                 <Route path="/create" element={<Create />} />
               </Routes>
-            </BrowserRouter>
-          </Box>
-        </Flex>
-      </Box>
+            </Box>
+          </Flex>
+        </Box>
+      </BrowserRouter>
     </ChakraProvider>
   );
 }
