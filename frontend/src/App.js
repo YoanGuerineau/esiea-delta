@@ -11,11 +11,23 @@ import Read from './pages/read'
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import './css/style.css'
 import Create from './pages/create';
+import { extendTheme } from '@chakra-ui/react'
 
 function App() {
+  const extendedTheme = extendTheme({
+    styles: {
+      global: {
+        // styles for the `body`
+        body: {
+          color: '#2d3748',
+        }
+      }
+    }
+  })
+
   return (
     <ChakraProvider
-      theme={theme}
+      theme={extendedTheme}
     >
       <BrowserRouter>
         <Box>
