@@ -13,7 +13,7 @@ import {
 function ArticleCard(props) {
 	const colors = ['orange','blue','cyan','facebook','gray','green','linkedin','messenger','blackAlpha','pink','purple','red','teal','telegram','twitter','whatsapp','whiteAlpha','yellow']
     const navigate = useNavigate();
-	const handleOnClick = useCallback(() => navigate('/read', { replace: true }), [navigate]);
+	const handleOnClick = useCallback(() => navigate('/read', { state: props.data, replace: true }), [navigate]);
 
     return (
         <VStack

@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import {
     Box,
     Heading,
@@ -13,13 +13,24 @@ import {
     Flex,
     Spacer
 } from "@chakra-ui/react";
-import { ArrowBackIcon, DeleteIcon, ChevronRightIcon } from '@chakra-ui/icons'
+import { ArrowBackIcon, EditIcon, DeleteIcon, ChevronRightIcon } from '@chakra-ui/icons'
+import ChakraUIRenderer from 'chakra-ui-markdown-renderer';
+import ReactMarkdown from 'react-markdown'
 
-function Read() {
+function Read(props) {
     const navigate = useNavigate();
     const handleOnClick = useCallback(() => navigate('/', { replace: true }), [navigate]);
+    const data = useLocation().state
 
     function deleteArticle() {
+        fetch('http://localhost:8080/api/private/article/' + String(data.id), {
+            method: 'DELETE'
+        })
+		.catch(e => console.log(e.toString()));
+        console.log('test')
+    }
+
+    function editArticle() {
 
     }
 
@@ -45,15 +56,20 @@ function Read() {
                     <Spacer />
                     <IconButton
                         isRound={true}
+                        icon={<EditIcon />}
+                        variant="ghost"
+                        onClick={editArticle}
+                    />
+                    <Divider orientation='vertical' height={4}/>
+                    <IconButton
+                        isRound={true}
                         icon={<DeleteIcon />}
                         variant="ghost"
                         onClick={deleteArticle}
                     />
                 </Flex>
-                <Heading>Lorem Ipsum</Heading>
-                <Text w="100%" align="start">
-                    Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
-                </Text>
+                <Heading>{data.title}</Heading>
+                <ReactMarkdown w="100%" components={ChakraUIRenderer()} children={data.content} skipHtml />
                 <Text w="100%" textAlign="end" fontStyle="italic">NomAuteur</Text>
             </VStack>
         </Box>
