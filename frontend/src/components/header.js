@@ -12,6 +12,7 @@ import { EditIcon } from "@chakra-ui/icons"
 function Header() {
   const navigate = useNavigate();
 	const handleOnClick = useCallback(() => navigate('/create', { replace: true }), [navigate]);
+  const goToHomePage = useCallback(() => navigate('/', { replace: true }), [navigate]);
 
 
   return (
@@ -30,12 +31,15 @@ function Header() {
         maxW="1024px"
       >
         <Button
-        marginRight="2"
-          size="md"
-          w="12"
-          bg="black"
+          marginRight="2"
+          w="10"
+          bg="#2D3748"
           color="white"
           fontSize="7xl"
+          onClick={goToHomePage}
+          _focus={{
+            outline: "none"
+          }}
         >
           Δ
         </Button>

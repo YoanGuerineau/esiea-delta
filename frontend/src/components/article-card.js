@@ -10,7 +10,8 @@ import {
 } from "@chakra-ui/react";
 
 
-function ArticleCard() {
+function ArticleCard(props) {
+	const colors = ['orange','blue','cyan','facebook','gray','green','linkedin','messenger','blackAlpha','pink','purple','red','teal','telegram','twitter','whatsapp','whiteAlpha','yellow']
     const navigate = useNavigate();
 	const handleOnClick = useCallback(() => navigate('/read', { replace: true }), [navigate]);
 
@@ -20,28 +21,36 @@ function ArticleCard() {
 			w="100%"
 			borderRadius={8}
 			border="1px solid white"
+			transition="box-shadow 150ms ease-out"
 			_hover={{
 				background: "gray.50",
-				color: "teal.500",
+				color: "gray.600",
 				cursor: "pointer",
-				border: "1px solid lightgray"
+				boxShadow: "md"
 			}}
 			onClick={handleOnClick}
 		>
 			<HStack w="100%">
-				<Heading size="md">Mon Titre d'Article</Heading>
-				<Spacer></Spacer>
-				<Tag
-					size="sm"
-					borderRadius='full'
-					variant="solid"
-				>
-					#MaCatégorie
-				</Tag>
+				<Heading size="md">{props.data.title}</Heading>
+				<Spacer />
+				{
+					props.data.categories.map((el, index) => 
+					<Tag
+						key={el.id}
+						size="sm"
+						borderRadius='full'
+						variant="outline"
+						colorScheme={colors[index % 18]}
+						fontWeight="bold"
+					>
+						{el.name}
+					</Tag>)
+				}
 			</HStack>
-			<Text>
-				Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s
+			<Text noOfLines={4}>
+				{props.data.content}
 			</Text>
+			<Text w="100%" textAlign="end" fontStyle="italic">{props.data.author}</Text>
 		</VStack>
     )
 }
