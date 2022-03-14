@@ -22,7 +22,9 @@ import {
     AccordionItem,
     AccordionButton,
     AccordionIcon,
-    AccordionPanel
+    AccordionPanel,
+    Flex,
+    Divider
 } from "@chakra-ui/react";
 import { ArrowBackIcon, ChevronRightIcon } from '@chakra-ui/icons'
 import ChakraUIRenderer from 'chakra-ui-markdown-renderer';
@@ -37,8 +39,9 @@ function Create() {
     return (
         <Box>
             <VStack spacing={8}>
-                <HStack
-                    w="100%"
+                <Flex
+                  w="100%"
+                  alignItems="center"
                 >
                     <IconButton
                         isRound={true}
@@ -46,12 +49,13 @@ function Create() {
                         variant="ghost"
                         onClick={handleOnClick}
                     />
+                    <Divider orientation='vertical' height={4} px="2" />
                     <Breadcrumb spacing='8px' separator={<ChevronRightIcon color='gray.500' />}>
                         <BreadcrumbItem>
                             <BreadcrumbLink onClick={handleOnClick}>Accueil</BreadcrumbLink>
                         </BreadcrumbItem>
                     </Breadcrumb>
-                </HStack>
+                </Flex>
                 <Heading m={2}>Écrire un article</Heading>
                 <FormControl isRequired m="2" w="100%">
                     <VStack spacing={2} align="flex-start">

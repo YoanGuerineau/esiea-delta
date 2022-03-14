@@ -16,12 +16,14 @@ function Home() {
 
 	// Change effects
 	useEffect(() => {
-		fetch('http://localhost:8080/api/private/article')
-			.then(res => res.json())
-			.then(data => {
-				setArticles(data);
-			})
-			.catch(e => console.log(e.toString()));
+		if (articles.length <= 0) {
+			fetch('http://localhost:8080/api/private/article')
+				.then(res => res.json())
+				.then(data => {
+					setArticles(data);
+				})
+				.catch(e => console.log(e.toString()));
+		}
 	}, [articles]);
 
 
