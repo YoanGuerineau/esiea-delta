@@ -3,39 +3,29 @@ package com.esiea.esieadelta.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
 @Entity
-@Table( name = "categories" )
+@Table( 
+	name = "categories",
+	uniqueConstraints = { @UniqueConstraint( 	columnNames = { "name" } ) }
+)
 public class Category {
 
 	@Id
 	@GeneratedValue( strategy = GenerationType.IDENTITY )
 	@Column( name = "category_id" )
 	private Integer id;
+	@Column( name = "name", unique = true )
 	private String name;
-	@ManyToMany( 
-		fetch = FetchType.LAZY,
-		cascade = {
-			CascadeType.PERSIST,
-			CascadeType.MERGE
-		}
-	)
-	@JoinTable(
-		name = "category_article",
-		joinColumns = @JoinColumn( name = "category_id" ),
-		inverseJoinColumns = @JoinColumn( name = "article_id" )
-	)
+	@ManyToMany( mappedBy = "categories" )
 	private List<Article> articles = new ArrayList<>();
 	
 	public Integer getId() {
