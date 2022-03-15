@@ -47,7 +47,7 @@ function ArticleCard(props) {
 					</Tag>)
 				}
 			</HStack>
-			<Text noOfLines={4}>
+			<Text w="100%" noOfLines={4}>
 				{props.data.content}
 			</Text>
 			<Text w="100%" textAlign="end" fontStyle="italic">{props.data.author}</Text>
