@@ -31,6 +31,7 @@ public class Article {
 	@DateTimeFormat( pattern = "yyyy-MM-dd" )
 	private Date date;
 	private String content;
+	private String thumbnail;
 	@ManyToMany( 
 		fetch = FetchType.LAZY,
 		cascade = {
@@ -84,6 +85,14 @@ public class Article {
 		this.content = content;
 	}
 	
+	public String getThumbnail() {
+		return thumbnail;
+	}
+
+	public void setThumbnail(String thumbnail) {
+		this.thumbnail = thumbnail;
+	}
+
 	public List<Category> getCategories() {
 		return categories;
 	}

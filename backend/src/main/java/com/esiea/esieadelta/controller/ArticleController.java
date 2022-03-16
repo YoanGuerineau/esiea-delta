@@ -104,6 +104,9 @@ public class ArticleController {
 			if (article.getDate() != null && !article.getDate().equals(existingArticle.getDate())) {
 				existingArticle.setDate(article.getDate());
 			}
+			if (article.getThumbnail() != null && !article.getThumbnail().equals(existingArticle.getThumbnail())) {
+				existingArticle.setThumbnail(article.getThumbnail());
+			}
 			if (article.getCategories() != null && !article.getCategories().equals(existingArticle.getCategories())) {
 				existingArticle.setCategories(article.getCategories());
 			}

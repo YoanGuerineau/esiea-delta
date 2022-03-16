@@ -11,6 +11,7 @@ public class BasicArticle {
 	protected String author;
 	protected Date date;
 	protected String content;
+	protected String thumbnail;
 	
 	public BasicArticle(Article article) {
 		setId(article.getId());
@@ -18,6 +19,7 @@ public class BasicArticle {
 		setAuthor(article.getAuthor());
 		setDate(article.getDate());
 		setContent(article.getContent());
+		setThumbnail(article.getThumbnail());
 	}
 	
 	public Integer getId() {
@@ -49,5 +51,11 @@ public class BasicArticle {
 	}
 	public void setContent(String content) {
 		this.content = content;
+	}
+	public String getThumbnail() {
+		return thumbnail;
+	}
+	public void setThumbnail(String thumbnail) {
+		this.thumbnail = thumbnail;
 	}
 }

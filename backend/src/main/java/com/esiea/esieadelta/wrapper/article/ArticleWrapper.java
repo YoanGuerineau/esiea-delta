@@ -48,6 +48,7 @@ public class ArticleWrapper {
 		article.setAuthor(basicArticle.getAuthor());
 		article.setDate(basicArticle.getDate());
 		article.setContent(basicArticle.getContent());
+		article.setThumbnail(basicArticle.getThumbnail());
 		return article;
 	}
 }
