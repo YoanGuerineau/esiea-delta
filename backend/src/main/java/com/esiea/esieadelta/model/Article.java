@@ -4,11 +4,15 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 
@@ -27,7 +31,17 @@ public class Article {
 	@DateTimeFormat( pattern = "yyyy-MM-dd" )
 	private Date date;
 	private String content;
-	@ManyToMany( mappedBy = "articles" )
+	@ManyToMany( 
+		fetch = FetchType.LAZY,
+		cascade = {
+			CascadeType.MERGE
+		}
+	)
+	@JoinTable(
+		name = "category_article",
+		joinColumns = @JoinColumn( name = "article_id" ),
+		inverseJoinColumns = @JoinColumn( name = "category_id" )
+	)
 	private List<Category> categories = new ArrayList<>();
 	
 	public Integer getId() {

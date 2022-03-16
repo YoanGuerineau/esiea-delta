@@ -51,10 +51,17 @@ public class CategoryController {
 	@PostMapping("")
 	public ResponseEntity<CompleteCategory> addCategory(@RequestBody Category category) {
 		try {
-			CompleteCategory completeCategory = categoryService.createCategory(category);
+			CompleteCategory completeCategory;
+			if ( categoryService.categoryNameExists(category.getName()) ) {
+				completeCategory = categoryService.getCategory(categoryService.findCategoryByName(category.getName()).getId());
+			} else {
+				completeCategory= categoryService.createCategory(category);				
+			}
 			return new ResponseEntity<CompleteCategory>(completeCategory, HttpStatus.OK);			
 		} catch ( NotAllowedException e ) {
 			return new ResponseEntity<>( HttpStatus.METHOD_NOT_ALLOWED);
+		} catch (NotFoundException e) {
+			return new ResponseEntity<>( HttpStatus.NOT_FOUND);
 		}
 	}
 	

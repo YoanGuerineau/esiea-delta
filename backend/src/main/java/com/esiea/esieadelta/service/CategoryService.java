@@ -46,6 +46,14 @@ public class CategoryService {
 		return categoryRepository.findById(id);
 	}
 	
+	public Boolean categoryNameExists(String name) {
+		return categoryRepository.findByName(name).iterator().hasNext();
+	}
+
+	public Category findCategoryByName(String name) {
+		return categoryRepository.findByName(name).iterator().next();
+	}
+	
 	public CompleteCategory updateCategory(Category category) throws NotFoundException {
 		getCategory(category.getId());
 		return upsertCategory(category);
