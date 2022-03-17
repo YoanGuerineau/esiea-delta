@@ -40,6 +40,10 @@ public class ArticleService {
 	public List<CompleteArticle> getArticlesByContent(String content) {
 		return articleWrapper.getCompleteArticles(articleRepository.findByContentContaining(content));
 	}
+	
+	public List<CompleteArticle> getArticlesByAuthor(String author) {
+		return articleWrapper.getCompleteArticles(articleRepository.findByAuthorContaining(author));
+	}
 
 	public CompleteArticle getArticle(Integer id) throws NotFoundException {
 		Optional<Article> result = articleRepository.findById(id);

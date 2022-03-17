@@ -48,13 +48,33 @@ public class ArticleController {
 	}
 
 	@GetMapping("/search")
-	public List<CompleteArticle> getArticlesByKeyword(@RequestParam("query") String keyword) {
-		List<CompleteArticle> titlesMatching = articleService.getArticlesByTitle(keyword);
-		List<CompleteArticle> contentsMatching = articleService.getArticlesByContent(keyword);
+	public List<CompleteArticle> searchArticles(@RequestParam("title") String title, @RequestParam("content") String content, @RequestParam("author") String author ) {
+		List<CompleteArticle> titlesMatching = new ArrayList<>();
+		if ( title != null && !title.isBlank() ) {
+			titlesMatching = articleService.getArticlesByTitle(title);
+		}
+		List<CompleteArticle> contentsMatching = new ArrayList<>();
+		if ( content != null && !content.isBlank() ) {
+			contentsMatching = articleService.getArticlesByContent(content);
+		}
+		List<CompleteArticle> authorsMatching = new ArrayList<>();
+		if ( author != null && !author.isBlank() ) {
+			authorsMatching = articleService.getArticlesByAuthor(author);
+		}
 		List<CompleteArticle> results = new ArrayList<>();
-		results.addAll(titlesMatching);
-		results.addAll(contentsMatching);
-		return results;
+		for ( CompleteArticle completeArticle : titlesMatching ) {
+			if ( !results.stream().anyMatch(resultArticle -> resultArticle.getId() == completeArticle.getId()) )
+				results.add(completeArticle);
+		}
+		for ( CompleteArticle completeArticle : contentsMatching ) {
+			if ( !results.stream().anyMatch(resultArticle -> resultArticle.getId() == completeArticle.getId()) )
+				results.add(completeArticle);
+		}
+		for ( CompleteArticle completeArticle : authorsMatching ) {
+			if ( !results.stream().anyMatch(resultArticle -> resultArticle.getId() == completeArticle.getId()) )
+				results.add(completeArticle);
+		}
+		return new ArrayList<CompleteArticle>(results);
 	}
 
 	@PostMapping("")
