@@ -11,4 +11,6 @@ public interface ArticleRepository extends CrudRepository<Article, Integer> {
 	public Iterable<Article> findByTitleContaining(String title);
 	
 	public Iterable<Article> findByContentContaining(String content);
+	
+	public Iterable<Article> findByAuthorContaining(String author);
 }
