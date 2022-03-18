@@ -19,7 +19,9 @@ function Home() {
 	// States
 	const [articles, setArticles] = useState([])
 	const [searching, setSearching] = useState(false)
+	const [searchingString, setSearchingString] = useState('')
 	const [tmpArticles, setTmpArticles] = useState([])
+	const [allTag, setAllTag] = useState([true, false, false, false])	// Tags: 'Tout','Titre','Contenu','Auteur'
 
 	// Change effects
 	useEffect(() => {
@@ -54,14 +56,38 @@ function Home() {
 	}
 
 	// Get search articles
-	function getSearchArticles(event) {
-		if (event.key === 'Enter' && event.target.value !== '') {
-			fetch('http://localhost:8080/api/private/article/search?query=' + event.target.value)
+	function getSearchArticles() {
+		if (searchingString !== '') {
+			fetch(`http://localhost:8080/api/private/article/search?title=${
+				allTag[0] || allTag[1] ? searchingString:''
+			}&content=${
+				allTag[0] || allTag[2] ? searchingString:''
+			}&author=${
+				allTag[0] || allTag[3] ? searchingString:''
+			}`)
 				.then((res) => res.json())
 				.then((data) => {
 					setArticles(data)
 				})
 		}
+	}
+
+	// Enable search tags
+	function enableTag(tag) {
+		if (tag === 0) {
+			setAllTag([true, false, false, false])
+		}
+		else {
+			let tmpAllTags =  [...allTag]
+			tmpAllTags[0] = false
+			tmpAllTags[tag] = true
+			if (tmpAllTags[1] === true && tmpAllTags[2] === true && tmpAllTags[3] === true) {
+				setAllTag([true, false, false, false])
+			} else {
+				setAllTag(tmpAllTags)
+			}
+		}
+		getSearchArticles()
 	}
 
 	return (
@@ -74,8 +100,8 @@ function Home() {
 					Delta Blog
 				</Heading>
 				<Flex
-				    w="100%"
-				    gap="8px"
+					w="100%"
+					gap="8px"
 					onClick={swithToSearch}
 				>
 					<InputGroup>
@@ -84,61 +110,70 @@ function Home() {
 							children={<SearchIcon color='gray.300' />}
 						/>
 						<Input
-						    type='search'
-						    placeholder='Recherche...'
-							onKeyUp={(event) => {getSearchArticles(event)}}
+							type='search'
+							placeholder='Recherche...'
+							onChange={(event) => {setSearchingString(event.target.value)}}
+							onKeyUp={(event) => {if (event.key === 'Enter') {getSearchArticles()} }}
 						/>
 					</InputGroup>
 					<IconButton
-					    display={() => searching ? "block":"none"}
-					    aria-label='Search database'
+						display={() => searching ? "block" : "none"}
+						aria-label='Search database'
 						icon={<CloseIcon color='gray.300' />}
 						variant="ghost"
 						isRound
 						onClick={swithToAllArticles}
 					/>
 				</Flex>
-				<HStack
-					display={() => searching ? "block":"none"}
-					spacing={4}
+				<Flex
+					display={() => searching ? "block" : "none"}
+					flexWrap="wrap"
 				>
-				    <Tag
-				      size="md"
-				      variant='solid'
-				      colorScheme='gray'
-					  fontWeight="bold"
-					  cursor="pointer"
-				    >
-				      <TagLabel>Tout</TagLabel>
-				    </Tag>
 					<Tag
-				      size="md"
-				      variant='outline'
-				      colorScheme='gray'
-					  fontWeight="bold"
-					  cursor="pointer"
-				    >
-				      <TagLabel>Article</TagLabel>
-				    </Tag>
+						m={1}
+						size="md"
+						variant={allTag[0] ? 'solid':'outline' }
+						colorScheme='gray'
+						fontWeight="bold"
+						cursor="pointer"
+						onClick={() => {enableTag(0)}}
+					>
+						<TagLabel>Tout</TagLabel>
+					</Tag>
 					<Tag
-				      size="md"
-				      variant='outline'
-				      colorScheme='gray'
-					  fontWeight="bold"
-					  cursor="pointer"
-				    >
-				      <TagLabel>Auteur</TagLabel>
-				    </Tag>
+						m={1}
+						size="md"
+						variant={allTag[1] ? 'solid':'outline' }
+						colorScheme='gray'
+						fontWeight="bold"
+						cursor="pointer"
+						onClick={() => {enableTag(1)}}
+					>
+						<TagLabel>Titre</TagLabel>
+					</Tag>
 					<Tag
-				      size="md"
-				      variant='outline'
-				      colorScheme='gray'
-					  fontWeight="bold"
-					  cursor="pointer"
-				    >
-				      <TagLabel>Catégorie</TagLabel>
-				    </Tag>
-				</HStack>
+						m={1}
+						size="md"
+						variant={allTag[2] ? 'solid':'outline' }
+						colorScheme='gray'
+						fontWeight="bold"
+						cursor="pointer"
+						onClick={() => {enableTag(2)}}
+					>
+						<TagLabel>Contenu</TagLabel>
+					</Tag>
+					<Tag
+						m={1}
+						size="md"
+						variant={allTag[3] ? 'solid':'outline' }
+						colorScheme='gray'
+						fontWeight="bold"
+						cursor="pointer"
+						onClick={() => {enableTag(3)}}
+					>
+						<TagLabel>Auteur</TagLabel>
+					</Tag>
+				</Flex>
 				/* articles, static */
 				{articleElements}
 			</VStack>
