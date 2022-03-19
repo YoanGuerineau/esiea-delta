@@ -8,9 +8,9 @@ import com.esiea.esieadelta.model.Article;
 @Repository
 public interface ArticleRepository extends CrudRepository<Article, Integer> {
 
-	public Iterable<Article> findByTitleContaining(String title);
+	public Iterable<Article> findByTitleIgnoreCaseContaining(String title);
 	
-	public Iterable<Article> findByContentContaining(String content);
+	public Iterable<Article> findByContentIgnoreCaseContaining(String content);
 	
-	public Iterable<Article> findByAuthorContaining(String author);
+	public Iterable<Article> findByAuthorIgnoreCaseContaining(String author);
 }

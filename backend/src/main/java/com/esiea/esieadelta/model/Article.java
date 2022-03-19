@@ -14,6 +14,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.springframework.format.annotation.DateTimeFormat;
@@ -28,7 +29,7 @@ public class Article {
 	private Integer id;
 	private String title;
 	private String author;
-	@DateTimeFormat( pattern = "yyyy-MM-dd" )
+	@DateTimeFormat( pattern = "yyyy-MM-dd HH:mm:ss" )
 	private Date date;
 	private String content;
 	private String thumbnail;
@@ -44,6 +45,13 @@ public class Article {
 		inverseJoinColumns = @JoinColumn( name = "category_id" )
 	)
 	private List<Category> categories = new ArrayList<>();
+	@OneToMany( 
+		mappedBy = "article",
+		cascade = {
+			CascadeType.REMOVE
+		}
+	)
+	private List<Comment> comments = new ArrayList<>();
 	
 	public Integer getId() {
 		return id;
@@ -100,5 +108,12 @@ public class Article {
 	public void setCategories(List<Category> categories) {
 		this.categories = categories;
 	}
-	
+
+	public List<Comment> getComments() {
+		return comments;
+	}
+
+	public void setComments(List<Comment> comments) {
+		this.comments = comments;
+	}
 }

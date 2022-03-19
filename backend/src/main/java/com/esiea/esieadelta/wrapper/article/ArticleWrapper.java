@@ -8,12 +8,16 @@ import org.springframework.stereotype.Component;
 
 import com.esiea.esieadelta.model.Article;
 import com.esiea.esieadelta.wrapper.category.CategoryWrapper;
+import com.esiea.esieadelta.wrapper.comment.CommentWrapper;
 
 @Component
 public class ArticleWrapper {
 	
 	@Autowired
 	private CategoryWrapper categoryWrapper;
+	
+	@Autowired
+	private CommentWrapper commentWrapper;
 	
 	public CompleteArticle getCompleteArticle(Article article) {
 		return new CompleteArticle(article);
@@ -38,6 +42,7 @@ public class ArticleWrapper {
 	public Article getArticle(CompleteArticle completeArticle) {
 		Article article = getArticleFromBasic(completeArticle);
 		article.setCategories(categoryWrapper.getCategories(completeArticle.getCategories()));
+		article.setComments(commentWrapper.getComments(completeArticle.getComments()));
 		return article;
 	}
 	

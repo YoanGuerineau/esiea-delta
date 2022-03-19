@@ -83,7 +83,7 @@ public class ArticleController {
 			CompleteArticle completeArticle = articleService.createArticle(article);
 			return new ResponseEntity<CompleteArticle>(completeArticle, HttpStatus.OK);
 		} catch (NotAllowedException e) {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(HttpStatus.METHOD_NOT_ALLOWED);
 		}
 	}
 
@@ -114,8 +114,7 @@ public class ArticleController {
 			if (article.getTitle() != null && !article.getTitle().equals(existingArticle.getTitle())) {
 				existingArticle.setTitle(article.getTitle());
 			}
-			if (article.getContent() != null
-					&& !article.getContent().equals(existingArticle.getContent())) {
+			if (article.getContent() != null && !article.getContent().equals(existingArticle.getContent())) {
 				existingArticle.setContent(article.getContent());
 			}
 			if (article.getAuthor() != null && !article.getAuthor().equals(existingArticle.getAuthor())) {
@@ -129,6 +128,9 @@ public class ArticleController {
 			}
 			if (article.getCategories() != null && !article.getCategories().equals(existingArticle.getCategories())) {
 				existingArticle.setCategories(article.getCategories());
+			}
+			if (article.getComments() != null && !article.getComments().equals(existingArticle.getComments())) {
+				existingArticle.setComments(article.getComments());
 			}
 			existingArticle = articleService.updateArticle(existingArticle);
 			return new ResponseEntity<CompleteArticle>(existingArticle, HttpStatus.OK);
