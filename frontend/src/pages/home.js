@@ -42,13 +42,7 @@ function Home() {
 					})
 				});
 		}
-	}, []);
-
-
-	// Get new articles in page
-	const articleElements = articles.map((el) =>
-		<ArticleCard data={el} key={el.id} />
-	)
+	});
 
 	// Switch to search
 	function swithToSearch() {
@@ -188,8 +182,11 @@ function Home() {
 						<TagLabel>Auteur</TagLabel>
 					</Tag>
 				</Flex>
-				/* articles, static */
-				{articleElements}
+				{
+					articles.map((el) =>
+						<ArticleCard data={el} key={el.id} />
+					)
+				}
 			</VStack>
 		</Box>
 	);

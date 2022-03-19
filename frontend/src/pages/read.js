@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
     Box,
@@ -12,45 +12,109 @@ import {
     BreadcrumbLink,
     Flex,
     Spacer,
-    useToast
+    useToast,
+    Textarea,
+    Input,
+    Button,
+    Avatar
 } from "@chakra-ui/react";
 import { ArrowBackIcon, EditIcon, DeleteIcon, ChevronRightIcon } from '@chakra-ui/icons'
 import ChakraUIRenderer from 'chakra-ui-markdown-renderer';
 import ReactMarkdown from 'react-markdown'
 
 function Read() {
-    // Toast
     const toast = useToast()
-
     const navigate = useNavigate();
     const goBack = useCallback(() => navigate('/', { replace: true }), [navigate]);
     const data = useLocation().state
+    const [commentAuthor, setCommentAuthor] = useState('')
+    const [commentContent, setCommentContent] = useState('')
+    const [newComments, setNewComments] = useState([])
+    const refs = {
+        inputRef: useRef(null),
+        textareaRef: useRef(null)
+    }
 
     function deleteArticle() {
         fetch('http://localhost:8080/api/private/article/' + String(data.id), {
             method: 'DELETE'
         })
-        .then(() => {
-            toast({
-                title: "Succès",
-                description: "Article supprimé !",
-                status: 'success',
-                isClosable: true,
-                onCloseComplete: goBack()
+            .then(() => {
+                toast({
+                    title: "Succès",
+                    description: "Article supprimé !",
+                    status: 'success',
+                    isClosable: true,
+                    onCloseComplete: goBack()
+                })
             })
-        })
-		.catch((e) => {
-            toast({
-                title: e.toString(),
-                description: "Impossible de supprimer l'article",
-                status: 'error',
-                isClosable: true,
-            })
-        });
+            .catch((e) => {
+                toast({
+                    title: e.toString(),
+                    description: "Impossible de supprimer l'article",
+                    status: 'error',
+                    isClosable: true,
+                })
+            });
     }
 
     function editArticle() {
 
+    }
+
+    function parseDate(rawDate) {
+        const date = new Date(rawDate)
+        return date.getFullYear() + "-" + ("0" + (date.getMonth() + 1)).slice(-2) + "-" + ("0" + date.getDay()).slice(-2)
+    }
+
+    function sendComment() {
+        if (commentAuthor === '' || commentContent === '') {
+            toast({
+                title: "Erreur",
+                description: "Auteur ou commentaire invalide !",
+                status: 'error',
+                isClosable: true
+            })
+            return
+        }
+
+        const today = new Date()
+        const newComment = {
+            author: commentAuthor,
+            content: commentContent,
+            date: today.getFullYear() + "-" + ("0" + (today.getMonth() + 1)).slice(-2) + "-" + ("0" + today.getDay()).slice(-2),
+            article: {
+                id: data.id
+            }
+        }
+        fetch('http://localhost:8080/api/private/comment', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(newComment)
+        })
+            .then((res) => res.json())
+            .then((data) => {
+                setNewComments([...newComments, newComment])
+                refs.inputRef.current.value = ''
+                refs.textareaRef.current.value = ''
+                toast({
+                    title: "Succès",
+                    description: "Commentaire ajouté !",
+                    status: 'success',
+                    isClosable: true
+                })
+            })
+            .catch((e) => {
+                toast({
+                    title: e.toString(),
+                    description: "Impossible d'ajouter le commentaire",
+                    status: 'error',
+                    isClosable: true,
+                })
+            })
     }
 
     return (
@@ -79,7 +143,7 @@ function Read() {
                         variant="ghost"
                         onClick={editArticle}
                     />
-                    <Divider orientation='vertical' height={4}/>
+                    <Divider orientation='vertical' height={4} />
                     <IconButton
                         isRound={true}
                         icon={<DeleteIcon />}
@@ -87,11 +151,77 @@ function Read() {
                         onClick={deleteArticle}
                     />
                 </Flex>
-                <Heading>{data.title}</Heading>
+                <Heading p={4}>{data.title}</Heading>
+                <Text w="100%" textAlign="end" fontStyle="italic">{parseDate(data.date)}</Text>
                 <Box w="100%">
                     <ReactMarkdown w="100%" components={ChakraUIRenderer()} children={data.content} skipHtml />
                 </Box>
                 <Text w="100%" textAlign="end" fontStyle="italic">NomAuteur</Text>
+                <Box h={8} />
+                <Heading py={2} alignSelf="flex-start" size="md">Commentaires</Heading>
+                <VStack w="100%" align="flex-start">
+                    <Input
+                        ref={refs.inputRef}
+                        name='author'
+                        type="text"
+                        isRequired
+                        boxShadow="inner"
+                        placeholder='Auteur'
+                        onChange={(event) => { setCommentAuthor(event.target.value) }}
+                    />
+                    <Textarea
+                        ref={refs.textareaRef}
+                        name='comment'
+                        isRequired
+                        placeholder='Écrire un commentaire...'
+                        size='sm'
+                        borderRadius={6}
+                        boxShadow="inner"
+                        onChange={(event) => { setCommentContent(event.target.value) }}
+                    />
+                    <Button onClick={() => { sendComment() }}>Envoyer</Button>
+                </VStack>
+                <Box h={4} />
+                {
+                    newComments.map((el, index) => (
+                        <VStack
+                            p={4}
+                            w="100%"
+                            align="flex-start"
+                            key={String(el.id) + String(index)}
+                            boxShadow="md"
+                            borderRadius={8}
+                        >
+                            <Flex w="100%" alignItems="center">
+                                <Avatar mr={3} size="sm" name={el.author} />
+                                <Heading size="sm">{el.author}</Heading>
+                                <Spacer />
+                                <Text fontStyle="italic">{parseDate(el.date)}</Text>
+                            </Flex>
+                            <Text>{el.content}</Text>
+                        </VStack>
+                    ))
+                }
+                {
+                    data.comments.map((el) => (
+                        <VStack
+                            p={4}
+                            w="100%"
+                            align="flex-start"
+                            key={el.id}
+                            boxShadow="md"
+                            borderRadius={8}
+                        >
+                            <Flex w="100%" alignItems="center">
+                                <Avatar mr={3} size="sm" name={el.author} />
+                                <Heading size="sm">{el.author}</Heading>
+                                <Spacer />
+                                <Text fontStyle="italic">{parseDate(el.date)}</Text>
+                            </Flex>
+                            <Text>{el.content}</Text>
+                        </VStack>
+                    ))
+                }
             </VStack>
         </Box>
     );

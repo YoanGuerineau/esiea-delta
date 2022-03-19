@@ -59,7 +59,7 @@ function Create() {
           isClosable: true,
         })
       })
-  }, [])
+  })
 
   // Add category to the article
   function addCategory(id) {
