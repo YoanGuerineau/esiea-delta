@@ -22,13 +22,16 @@ import {
   AccordionIcon,
   AccordionPanel,
   Flex,
-  Divider
+  Divider,
+  useToast
 } from "@chakra-ui/react";
 import { ArrowBackIcon, ChevronRightIcon } from '@chakra-ui/icons'
 import ChakraUIRenderer from 'chakra-ui-markdown-renderer';
 import ReactMarkdown from 'react-markdown'
 
+
 function Create() {
+  const toast = useToast()
   const colors = ['orange', 'blue', 'cyan', 'facebook', 'gray', 'green', 'linkedin', 'messenger', 'blackAlpha', 'pink', 'purple', 'red', 'teal', 'telegram', 'twitter', 'whatsapp', 'whiteAlpha', 'yellow']
   const navigate = useNavigate();
   const goBack = useCallback(() => navigate('/', { replace: true }), [navigate]);
@@ -48,7 +51,14 @@ function Create() {
       .then((data) => {
         setAllCategories(data)
       })
-      .catch(e => console.log(e.toString()));
+      .catch((e) => {
+        toast({
+          title: e.toString(),
+          description: "Impossible de récupérer les catrégories depuis le serveur",
+          status: 'error',
+          isClosable: true,
+        })
+      })
   }, [])
 
   // Add category to the article
@@ -121,11 +131,32 @@ function Create() {
               method: 'POST'
             })
             .then(() => {
-              goBack()
+              toast({
+                title: "Succès",
+                description: "Article créé avec succès !",
+                status: 'success',
+                isClosable: true,
+                onCloseComplete: goBack()
+              })
             })
           })
         })
-        .catch(e => console.log(e.toString()));
+        .catch((e) => {
+          toast({
+            title: e.toString(),
+            description: "Impossible de créer le nouvel article",
+            status: 'error',
+            isClosable: true,
+          })
+        })
+      })
+      .catch((e) => {
+        toast({
+          title: e.toString(),
+          description: "Impossible de créer le(s) nouvelle(s) catégorie(s)",
+          status: 'error',
+          isClosable: true,
+        })
       })
     })
   }
