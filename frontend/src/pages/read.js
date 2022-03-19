@@ -11,13 +11,17 @@ import {
     BreadcrumbItem,
     BreadcrumbLink,
     Flex,
-    Spacer
+    Spacer,
+    useToast
 } from "@chakra-ui/react";
 import { ArrowBackIcon, EditIcon, DeleteIcon, ChevronRightIcon } from '@chakra-ui/icons'
 import ChakraUIRenderer from 'chakra-ui-markdown-renderer';
 import ReactMarkdown from 'react-markdown'
 
-function Read(props) {
+function Read() {
+    // Toast
+    const toast = useToast()
+
     const navigate = useNavigate();
     const goBack = useCallback(() => navigate('/', { replace: true }), [navigate]);
     const data = useLocation().state
@@ -27,9 +31,22 @@ function Read(props) {
             method: 'DELETE'
         })
         .then(() => {
-            goBack()
+            toast({
+                title: "Succès",
+                description: "Article supprimé !",
+                status: 'success',
+                isClosable: true,
+                onCloseComplete: goBack()
+            })
         })
-		.catch(e => console.log(e.toString()));
+		.catch((e) => {
+            toast({
+                title: e.toString(),
+                description: "Impossible de supprimer l'article",
+                status: 'error',
+                isClosable: true,
+            })
+        });
     }
 
     function editArticle() {
