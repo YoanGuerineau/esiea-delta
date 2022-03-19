@@ -34,15 +34,15 @@ public class ArticleService {
 	}
 
 	public List<CompleteArticle> getArticlesByTitle(String title) {
-		return articleWrapper.getCompleteArticles(articleRepository.findByTitleContaining(title));
+		return articleWrapper.getCompleteArticles(articleRepository.findByTitleIgnoreCaseContaining(title));
 	}
 
 	public List<CompleteArticle> getArticlesByContent(String content) {
-		return articleWrapper.getCompleteArticles(articleRepository.findByContentContaining(content));
+		return articleWrapper.getCompleteArticles(articleRepository.findByContentIgnoreCaseContaining(content));
 	}
 	
 	public List<CompleteArticle> getArticlesByAuthor(String author) {
-		return articleWrapper.getCompleteArticles(articleRepository.findByAuthorContaining(author));
+		return articleWrapper.getCompleteArticles(articleRepository.findByAuthorIgnoreCaseContaining(author));
 	}
 
 	public CompleteArticle getArticle(Integer id) throws NotFoundException {

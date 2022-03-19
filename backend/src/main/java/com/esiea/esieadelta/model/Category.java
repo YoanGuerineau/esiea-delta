@@ -15,7 +15,7 @@ import javax.persistence.UniqueConstraint;
 @Entity
 @Table( 
 	name = "categories",
-	uniqueConstraints = { @UniqueConstraint( 	columnNames = { "name" } ) }
+	uniqueConstraints = { @UniqueConstraint( columnNames = { "name" } ) }
 )
 public class Category {
 
