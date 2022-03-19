@@ -15,6 +15,11 @@ function ArticleCard(props) {
     const navigate = useNavigate();
 	const handleOnClick = useCallback(() => navigate('/read', { state: props.data, replace: true }), [navigate]);
 
+	function parseDate(rawDate) {
+        const date = new Date(rawDate)
+        return date.getFullYear() + "-" + ("0" + (date.getMonth() + 1)).slice(-2) + "-" + ("0" + date.getDay()).slice(-2)
+    }
+
     return (
         <VStack
 			p={2}
@@ -50,7 +55,7 @@ function ArticleCard(props) {
 			<Text w="100%" noOfLines={4}>
 				{props.data.content}
 			</Text>
-			<Text w="100%" textAlign="end" fontStyle="italic">{props.data.author}</Text>
+			<Text w="100%" textAlign="end" fontStyle="italic">{props.data.author + ", " + parseDate(props.data.date)}</Text>
 		</VStack>
     )
 }

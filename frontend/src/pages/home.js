@@ -16,16 +16,13 @@ import ArticleCard from '../components/article-card';
 import { SearchIcon, CloseIcon } from '@chakra-ui/icons'
 
 function Home() {
-	// Toast
 	const toast = useToast()
-	// States
 	const [articles, setArticles] = useState([])
 	const [searching, setSearching] = useState(false)
 	const [searchingString, setSearchingString] = useState('')
 	const [tmpArticles, setTmpArticles] = useState([])
 	const [allTag, setAllTag] = useState([true, false, false, false])	// Tags: 'Tout','Titre','Contenu','Auteur'
 
-	// Change effects
 	useEffect(() => {
 		if (articles.length <= 0) {
 			fetch('http://localhost:8080/api/private/article')
@@ -42,7 +39,7 @@ function Home() {
 					})
 				});
 		}
-	});
+	}, []);
 
 	// Switch to search
 	function swithToSearch() {

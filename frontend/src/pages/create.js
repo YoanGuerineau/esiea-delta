@@ -190,7 +190,12 @@ function Create() {
                 allCategories.map((el) => <option key={el.id} value={el.id}>{el.name}</option>)
               }
             </Select>
-            <Input type='text' placeholder='Créer une catégorie' onKeyPress={(event) => {createNewCategory(event)}} />
+            <Input
+              type='text'
+              placeholder='Créer une catégorie'
+              boxShadow="inner"
+              onKeyPress={(event) => {createNewCategory(event)}}
+            />
             <Flex
               p={2}
               w="100%"
@@ -229,25 +234,37 @@ function Create() {
                 )
               }
             </Flex>
-            <Box h={4} />
+            <Box h={2} />
             <FormLabel htmlFor='text'>Titre</FormLabel>
-            <Input isRequired type='text' onChange={(event) => { title = event.target.value }} />
-            <Box h={4} />
+            <Input
+              isRequired
+              type='text'
+              boxShadow="inner"
+              onChange={(event) => { title = event.target.value }}
+            />
+            <Box h={2} />
             <FormLabel htmlFor='text'>Contenu</FormLabel>
             <Textarea
               isRequired
               placeholder='Écrire un article au format Markdown'
               size='sm'
+              borderRadius={6}
+              boxShadow="inner"
               onChange={(event) => { setMarkedContent(event.target.value) }}
             />
-            <Box h={4} />
+            <Box h={2} />
             <FormLabel htmlFor='text'>Auteur</FormLabel>
-            <Input isRequired type='text' onChange={(event) => { author = event.target.value }} />
+            <Input
+              isRequired
+              type='text'
+              boxShadow="inner"
+              onChange={(event) => { author = event.target.value }}
+            />
           </VStack>
         </FormControl>
         <Button onClick={sendArticle}>Envoyer</Button>
         <Box h={4} />
-        <Accordion w="100%" allowToggle>
+        <Accordion w="100%" allowToggle border="1px" borderColor="gray.100" borderRadius={6}>
           <AccordionItem>
             <h2>
               <AccordionButton>
