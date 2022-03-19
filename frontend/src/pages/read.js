@@ -11,23 +11,42 @@ import {
     BreadcrumbItem,
     BreadcrumbLink,
     Flex,
-    Spacer
+    Spacer,
+    useToast
 } from "@chakra-ui/react";
 import { ArrowBackIcon, EditIcon, DeleteIcon, ChevronRightIcon } from '@chakra-ui/icons'
 import ChakraUIRenderer from 'chakra-ui-markdown-renderer';
 import ReactMarkdown from 'react-markdown'
 
-function Read(props) {
+function Read() {
+    // Toast
+    const toast = useToast()
+
     const navigate = useNavigate();
-    const handleOnClick = useCallback(() => navigate('/', { replace: true }), [navigate]);
+    const goBack = useCallback(() => navigate('/', { replace: true }), [navigate]);
     const data = useLocation().state
 
     function deleteArticle() {
         fetch('http://localhost:8080/api/private/article/' + String(data.id), {
             method: 'DELETE'
         })
-		.catch(e => console.log(e.toString()));
-        console.log('test')
+        .then(() => {
+            toast({
+                title: "Succès",
+                description: "Article supprimé !",
+                status: 'success',
+                isClosable: true,
+                onCloseComplete: goBack()
+            })
+        })
+		.catch((e) => {
+            toast({
+                title: e.toString(),
+                description: "Impossible de supprimer l'article",
+                status: 'error',
+                isClosable: true,
+            })
+        });
     }
 
     function editArticle() {
@@ -45,12 +64,12 @@ function Read(props) {
                         isRound={true}
                         icon={<ArrowBackIcon />}
                         variant="ghost"
-                        onClick={handleOnClick}
+                        onClick={goBack}
                     />
                     <Divider orientation='vertical' height={4} px="2" />
                     <Breadcrumb spacing='8px' separator={<ChevronRightIcon color='gray.500' />}>
                         <BreadcrumbItem>
-                            <BreadcrumbLink onClick={handleOnClick}>Accueil</BreadcrumbLink>
+                            <BreadcrumbLink onClick={goBack}>Accueil</BreadcrumbLink>
                         </BreadcrumbItem>
                     </Breadcrumb>
                     <Spacer />
@@ -69,7 +88,9 @@ function Read(props) {
                     />
                 </Flex>
                 <Heading>{data.title}</Heading>
-                <ReactMarkdown w="100%" components={ChakraUIRenderer()} children={data.content} skipHtml />
+                <Box w="100%">
+                    <ReactMarkdown w="100%" components={ChakraUIRenderer()} children={data.content} skipHtml />
+                </Box>
                 <Text w="100%" textAlign="end" fontStyle="italic">NomAuteur</Text>
             </VStack>
         </Box>

@@ -5,7 +5,6 @@ import {
   Heading,
   VStack,
   IconButton,
-  HStack,
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
@@ -17,43 +16,55 @@ import {
   Select,
   Tag,
   TagLabel,
-  TagCloseButton,
   Accordion,
   AccordionItem,
   AccordionButton,
   AccordionIcon,
   AccordionPanel,
   Flex,
-  Divider
+  Divider,
+  useToast
 } from "@chakra-ui/react";
 import { ArrowBackIcon, ChevronRightIcon } from '@chakra-ui/icons'
 import ChakraUIRenderer from 'chakra-ui-markdown-renderer';
 import ReactMarkdown from 'react-markdown'
 
+
 function Create() {
+  const toast = useToast()
   const colors = ['orange', 'blue', 'cyan', 'facebook', 'gray', 'green', 'linkedin', 'messenger', 'blackAlpha', 'pink', 'purple', 'red', 'teal', 'telegram', 'twitter', 'whatsapp', 'whiteAlpha', 'yellow']
   const navigate = useNavigate();
-  const handleOnClick = useCallback(() => navigate('/', { replace: true }), [navigate]);
+  const goBack = useCallback(() => navigate('/', { replace: true }), [navigate]);
+  var title = '';
+  var author = '';
 
   // States
   const [markedContent, setMarkedContent] = useState('');
-  const [categories, setCategories] = useState([])
+  const [allCategories, setAllCategories] = useState([])
   const [addedCategories, setAddedCategories] = useState([])
+  const [newCategories, setNewCategories] = useState([])
 
   // Effects
   useEffect(() => {
     fetch('http://localhost:8080/api/private/category')
       .then((res) => res.json())
       .then((data) => {
-        setCategories(data)
+        setAllCategories(data)
       })
-      .catch(e => console.log(e.toString()));
+      .catch((e) => {
+        toast({
+          title: e.toString(),
+          description: "Impossible de récupérer les catrégories depuis le serveur",
+          status: 'error',
+          isClosable: true,
+        })
+      })
   }, [])
 
   // Add category to the article
   function addCategory(id) {
-    if (!addedCategories.some(el => el.id === Number(id))) {
-      let theCategory = categories.find(el => el.id === Number(id))
+    if (!addedCategories.some(el => el.id === Number(id))) {  // Check if not already added
+      let theCategory = allCategories.find(el => el.id === Number(id))  // Get the category from his 'id'
       if (theCategory !== undefined) {
         setAddedCategories((prevState) => {
           return [
@@ -63,6 +74,91 @@ function Create() {
         })
       }
     }
+  }
+
+  function createNewCategory(event) {
+    if (event.key === "Enter") {
+      const newCategory = { "name": event.target.value}
+
+      // Check if the category already exist and had not already been added in newCategories
+      if (!allCategories.some(el => el.name === newCategory.name) && !newCategories.some(el => el.name === newCategory.name)) {
+        setNewCategories([...newCategories, newCategory])
+      }
+      // Clear the input
+      event.target.value = ''
+    }
+  }
+
+  function sendArticle() {
+    // Firstly send new categories
+    newCategories.forEach((category, index) => {
+      fetch('http://localhost:8080/api/private/category', {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          name: category.name
+        })
+      })
+      .then((res) => res.json())
+      .then((data) => {
+        // Add id to category list
+        newCategories[index]['id'] = data.id
+        // Secondly send article data
+        const today = new Date()
+        fetch('http://localhost:8080/api/private/article', {
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            title,
+            author,
+            date: today.getFullYear() + "-" + ("0" + (today.getMonth() + 1)).slice(-2) + "-" + ("0" + today.getDay()).slice(-2),
+            content: markedContent
+          })
+        })
+        .then((res) => res.json())
+        .then((data) => {
+          // Push categories to the article
+          const mixCategories = addedCategories.concat(newCategories)
+          console.log(mixCategories)
+          mixCategories.forEach((category) => {
+            fetch('http://localhost:8080/api/private/category/' + String(category.id) + '/' + String(data.id), {
+              method: 'POST'
+            })
+            .then(() => {
+              toast({
+                title: "Succès",
+                description: "Article créé avec succès !",
+                status: 'success',
+                isClosable: true,
+                onCloseComplete: goBack()
+              })
+            })
+          })
+        })
+        .catch((e) => {
+          toast({
+            title: e.toString(),
+            description: "Impossible de créer le nouvel article",
+            status: 'error',
+            isClosable: true,
+          })
+        })
+      })
+      .catch((e) => {
+        toast({
+          title: e.toString(),
+          description: "Impossible de créer le(s) nouvelle(s) catégorie(s)",
+          status: 'error',
+          isClosable: true,
+        })
+      })
+    })
   }
 
   return (
@@ -76,12 +172,12 @@ function Create() {
             isRound={true}
             icon={<ArrowBackIcon />}
             variant="ghost"
-            onClick={handleOnClick}
+            onClick={goBack}
           />
           <Divider orientation='vertical' height={4} px="2" />
           <Breadcrumb spacing='8px' separator={<ChevronRightIcon color='gray.500' />}>
             <BreadcrumbItem>
-              <BreadcrumbLink onClick={handleOnClick}>Accueil</BreadcrumbLink>
+              <BreadcrumbLink onClick={goBack}>Accueil</BreadcrumbLink>
             </BreadcrumbItem>
           </Breadcrumb>
         </Flex>
@@ -89,13 +185,18 @@ function Create() {
         <FormControl isRequired m="2" w="100%">
           <VStack spacing={2} align="flex-start">
             <FormLabel htmlFor='text'>Ajouter une catégorie</FormLabel>
-            <Select placeholder='Catégories existantes' onChange={(event) => { addCategory(event.target.value) }}>
+            <Select placeholder='Catégories existantes' variant='filled' onChange={(event) => { addCategory(event.target.value) }}>
               {
-                categories.map((el) => <option key={el.id} value={el.id}>{el.name}</option>)
+                allCategories.map((el) => <option key={el.id} value={el.id}>{el.name}</option>)
               }
             </Select>
-            <Input type='text' placeholder='Créer une catégorie' />
-            <HStack spacing={4}>
+            <Input type='text' placeholder='Créer une catégorie' onKeyPress={(event) => {createNewCategory(event)}} />
+            <Flex
+              p={2}
+              w="100%"
+              gap="16px"
+              flexWrap="wrap"
+            >
               {
                 addedCategories.map((el, index) =>
                   <Tag
@@ -105,29 +206,46 @@ function Create() {
                     variant="outline"
                     colorScheme={colors[index % 18]}
                     fontWeight="bold"
+                    flexGrow="0"
+                    flexShrink="0"
+                    flexBasis="auto"
                   >
                     <TagLabel>{el.name}</TagLabel>
-                    <TagCloseButton />
                   </Tag>
                 )
               }
-            </HStack>
+              {
+                newCategories.map((el, index) =>
+                  <Tag
+                    key={index}
+                    size="md"
+                    borderRadius='full'
+                    variant="outline"
+                    colorScheme={colors[index % 18]}
+                    fontWeight="bold"
+                  >
+                    <TagLabel>{el.name}</TagLabel>
+                  </Tag>
+                )
+              }
+            </Flex>
             <Box h={4} />
             <FormLabel htmlFor='text'>Titre</FormLabel>
-            <Input type='text' />
+            <Input isRequired type='text' onChange={(event) => { title = event.target.value }} />
             <Box h={4} />
             <FormLabel htmlFor='text'>Contenu</FormLabel>
             <Textarea
+              isRequired
               placeholder='Écrire un article au format Markdown'
               size='sm'
               onChange={(event) => { setMarkedContent(event.target.value) }}
             />
             <Box h={4} />
             <FormLabel htmlFor='text'>Auteur</FormLabel>
-            <Input type='text' />
+            <Input isRequired type='text' onChange={(event) => { author = event.target.value }} />
           </VStack>
         </FormControl>
-        <Button>Envoyer</Button>
+        <Button onClick={sendArticle}>Envoyer</Button>
         <Box h={4} />
         <Accordion w="100%" allowToggle>
           <AccordionItem>
