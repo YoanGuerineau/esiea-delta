@@ -10,12 +10,14 @@ import {
 	Flex,
 	Tag,
 	TagLabel,
-	HStack
+	useToast
 } from "@chakra-ui/react";
 import ArticleCard from '../components/article-card';
 import { SearchIcon, CloseIcon } from '@chakra-ui/icons'
 
 function Home() {
+	// Toast
+	const toast = useToast()
 	// States
 	const [articles, setArticles] = useState([])
 	const [searching, setSearching] = useState(false)
@@ -31,7 +33,14 @@ function Home() {
 				.then(data => {
 					setArticles(data);
 				})
-				.catch(e => console.log(e.toString()));
+				.catch((e) => {
+					toast({
+						title: e.toString(),
+						description: "Impossible de récupérer les articles depuis le serveur",
+						status: 'error',
+						isClosable: true,
+					})
+				});
 		}
 	}, []);
 
@@ -58,16 +67,21 @@ function Home() {
 	// Get search articles
 	function getSearchArticles() {
 		if (searchingString !== '') {
-			fetch(`http://localhost:8080/api/private/article/search?title=${
-				allTag[0] || allTag[1] ? searchingString:''
-			}&content=${
-				allTag[0] || allTag[2] ? searchingString:''
-			}&author=${
-				allTag[0] || allTag[3] ? searchingString:''
-			}`)
+			fetch(`http://localhost:8080/api/private/article/search?title=${allTag[0] || allTag[1] ? searchingString : ''
+				}&content=${allTag[0] || allTag[2] ? searchingString : ''
+				}&author=${allTag[0] || allTag[3] ? searchingString : ''
+				}`)
 				.then((res) => res.json())
 				.then((data) => {
 					setArticles(data)
+				})
+				.catch((e) => {
+					toast({
+						title: e.toString(),
+						description: "Impossible de récupérer les articles depuis le serveur",
+						status: 'error',
+						isClosable: true,
+					})
 				})
 		}
 	}
@@ -78,7 +92,7 @@ function Home() {
 			setAllTag([true, false, false, false])
 		}
 		else {
-			let tmpAllTags =  [...allTag]
+			let tmpAllTags = [...allTag]
 			tmpAllTags[0] = false
 			tmpAllTags[tag] = true
 			if (tmpAllTags[1] === true && tmpAllTags[2] === true && tmpAllTags[3] === true) {
@@ -112,8 +126,8 @@ function Home() {
 						<Input
 							type='search'
 							placeholder='Recherche...'
-							onChange={(event) => {setSearchingString(event.target.value)}}
-							onKeyUp={(event) => {if (event.key === 'Enter') {getSearchArticles()} }}
+							onChange={(event) => { setSearchingString(event.target.value) }}
+							onKeyUp={(event) => { if (event.key === 'Enter') { getSearchArticles() } }}
 						/>
 					</InputGroup>
 					<IconButton
@@ -132,44 +146,44 @@ function Home() {
 					<Tag
 						m={1}
 						size="md"
-						variant={allTag[0] ? 'solid':'outline' }
+						variant={allTag[0] ? 'solid' : 'outline'}
 						colorScheme='gray'
 						fontWeight="bold"
 						cursor="pointer"
-						onClick={() => {enableTag(0)}}
+						onClick={() => { enableTag(0) }}
 					>
 						<TagLabel>Tout</TagLabel>
 					</Tag>
 					<Tag
 						m={1}
 						size="md"
-						variant={allTag[1] ? 'solid':'outline' }
+						variant={allTag[1] ? 'solid' : 'outline'}
 						colorScheme='gray'
 						fontWeight="bold"
 						cursor="pointer"
-						onClick={() => {enableTag(1)}}
+						onClick={() => { enableTag(1) }}
 					>
 						<TagLabel>Titre</TagLabel>
 					</Tag>
 					<Tag
 						m={1}
 						size="md"
-						variant={allTag[2] ? 'solid':'outline' }
+						variant={allTag[2] ? 'solid' : 'outline'}
 						colorScheme='gray'
 						fontWeight="bold"
 						cursor="pointer"
-						onClick={() => {enableTag(2)}}
+						onClick={() => { enableTag(2) }}
 					>
 						<TagLabel>Contenu</TagLabel>
 					</Tag>
 					<Tag
 						m={1}
 						size="md"
-						variant={allTag[3] ? 'solid':'outline' }
+						variant={allTag[3] ? 'solid' : 'outline'}
 						colorScheme='gray'
 						fontWeight="bold"
 						cursor="pointer"
-						onClick={() => {enableTag(3)}}
+						onClick={() => { enableTag(3) }}
 					>
 						<TagLabel>Auteur</TagLabel>
 					</Tag>
