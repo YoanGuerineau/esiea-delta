@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
 	Box,
 	Heading,
@@ -10,7 +10,8 @@ import {
 	Flex,
 	Tag,
 	TagLabel,
-	useToast
+	useToast,
+	Spinner
 } from "@chakra-ui/react";
 import ArticleCard from '../components/article-card';
 import { SearchIcon, CloseIcon } from '@chakra-ui/icons'
@@ -21,25 +22,31 @@ function Home() {
 	const [searching, setSearching] = useState(false)
 	const [searchingString, setSearchingString] = useState('')
 	const [tmpArticles, setTmpArticles] = useState([])
-	const [allTag, setAllTag] = useState([true, false, false, false])	// Tags: 'Tout','Titre','Contenu','Auteur'
+	const [allTag, setAllTag] = useState([true, true, true])	// Tags: 'Tout','Titre','Contenu','Auteur'
+	const inputRef = useRef(null)
+	const [loader, setLoader] = useState(false)
 
 	useEffect(() => {
 		if (articles.length <= 0) {
+			setLoader(true)
 			fetch('http://localhost:8080/api/private/article')
 				.then(res => res.json())
 				.then(data => {
-					setArticles(data);
+					setArticles(data)
 				})
 				.catch((e) => {
 					toast({
 						title: e.toString(),
 						description: "Impossible de récupérer les articles depuis le serveur",
 						status: 'error',
-						isClosable: true,
+						isClosable: true
 					})
-				});
+				})
+				.finally(() => {
+					setLoader(false)
+				})
 		}
-	}, []);
+	}, [])
 
 	// Switch to search
 	function swithToSearch() {
@@ -50,6 +57,7 @@ function Home() {
 		}
 	}
 	function swithToAllArticles() {
+		inputRef.current.value = ''
 		setArticles(tmpArticles)
 		setTmpArticles([])
 		setSearching(false)
@@ -57,43 +65,40 @@ function Home() {
 
 	// Get search articles
 	function getSearchArticles() {
-		if (searchingString !== '') {
-			fetch(`http://localhost:8080/api/private/article/search?title=${allTag[0] || allTag[1] ? searchingString : ''
-				}&content=${allTag[0] || allTag[2] ? searchingString : ''
-				}&author=${allTag[0] || allTag[3] ? searchingString : ''
-				}`)
-				.then((res) => res.json())
-				.then((data) => {
-					setArticles(data)
+		setLoader(true)
+		fetch(`http://localhost:8080/api/private/article/search?title=${allTag[0] ? searchingString : ''
+			}&content=${allTag[1] ? searchingString : ''
+			}&author=${allTag[2] ? searchingString : ''
+			}`)
+			.then((res) => res.json())
+			.then((data) => {
+				setArticles(data)
+			})
+			.catch((e) => {
+				toast({
+					title: e.toString(),
+					description: "Impossible de récupérer les articles depuis le serveur",
+					status: 'error',
+					isClosable: true,
 				})
-				.catch((e) => {
-					toast({
-						title: e.toString(),
-						description: "Impossible de récupérer les articles depuis le serveur",
-						status: 'error',
-						isClosable: true,
-					})
-				})
-		}
+			})
+			.finally(() => {
+				setLoader(false)
+			})
 	}
 
 	// Enable search tags
 	function enableTag(tag) {
-		if (tag === 0) {
-			setAllTag([true, false, false, false])
-		}
-		else {
-			let tmpAllTags = [...allTag]
-			tmpAllTags[0] = false
-			tmpAllTags[tag] = true
-			if (tmpAllTags[1] === true && tmpAllTags[2] === true && tmpAllTags[3] === true) {
-				setAllTag([true, false, false, false])
-			} else {
-				setAllTag(tmpAllTags)
-			}
-		}
-		getSearchArticles()
+		// Change the wanted tag
+		let tmpAllTags = [...allTag]
+		tmpAllTags[tag] = !tmpAllTags[tag]
+		setAllTag(tmpAllTags)
 	}
+	useEffect(() => {
+		if (searching) {
+			getSearchArticles()
+		}
+	}, [allTag])
 
 	return (
 		<Box>
@@ -115,6 +120,7 @@ function Home() {
 							children={<SearchIcon color='gray.300' />}
 						/>
 						<Input
+							ref={inputRef}
 							type='search'
 							placeholder='Recherche...'
 							onChange={(event) => { setSearchingString(event.target.value) }}
@@ -131,8 +137,11 @@ function Home() {
 					/>
 				</Flex>
 				<Flex
-					display={() => searching ? "block" : "none"}
+					display={() => searching ? "flex" : "none"}
+					w="100%"
 					flexWrap="wrap"
+					alignItems="center"
+					justifyContent="center"
 				>
 					<Tag
 						m={1}
@@ -143,7 +152,7 @@ function Home() {
 						cursor="pointer"
 						onClick={() => { enableTag(0) }}
 					>
-						<TagLabel>Tout</TagLabel>
+						<TagLabel>Titre</TagLabel>
 					</Tag>
 					<Tag
 						m={1}
@@ -154,7 +163,7 @@ function Home() {
 						cursor="pointer"
 						onClick={() => { enableTag(1) }}
 					>
-						<TagLabel>Titre</TagLabel>
+						<TagLabel>Contenu</TagLabel>
 					</Tag>
 					<Tag
 						m={1}
@@ -165,20 +174,14 @@ function Home() {
 						cursor="pointer"
 						onClick={() => { enableTag(2) }}
 					>
-						<TagLabel>Contenu</TagLabel>
-					</Tag>
-					<Tag
-						m={1}
-						size="md"
-						variant={allTag[3] ? 'solid' : 'outline'}
-						colorScheme='gray'
-						fontWeight="bold"
-						cursor="pointer"
-						onClick={() => { enableTag(3) }}
-					>
 						<TagLabel>Auteur</TagLabel>
 					</Tag>
 				</Flex>
+				{
+					loader ? (
+						<Spinner m={4} size='xl' />
+					) : ''
+				}
 				{
 					articles.map((el) =>
 						<ArticleCard data={el} key={el.id} />
