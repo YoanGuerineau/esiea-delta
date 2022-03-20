@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
     Box,
@@ -19,24 +19,41 @@ import {
     Avatar
 } from "@chakra-ui/react";
 import { ArrowBackIcon, EditIcon, DeleteIcon, ChevronRightIcon } from '@chakra-ui/icons'
-import ChakraUIRenderer from 'chakra-ui-markdown-renderer';
+import ChakraUIRenderer from 'chakra-ui-markdown-renderer'
 import ReactMarkdown from 'react-markdown'
 
 function Read() {
     const toast = useToast()
-    const navigate = useNavigate();
-    const goBack = useCallback(() => navigate('/', { replace: true }), [navigate]);
-    const data = useLocation().state
+    const navigate = useNavigate()
+    const goBack = useCallback(() => navigate('/', { replace: true }), [navigate])
+    const articleId = useLocation().state
+    const [data, setData] = useState({comments: []})
+    const [refresh, setRefresh] = useState(false)
     const [commentAuthor, setCommentAuthor] = useState('')
     const [commentContent, setCommentContent] = useState('')
-    const [newComments, setNewComments] = useState([])
     const refs = {
         inputRef: useRef(null),
         textareaRef: useRef(null)
     }
 
+    useEffect(() => {
+        fetch(`http://localhost:8080/api/private/article/${articleId}`)
+            .then((res) => res.json())
+            .then((data) => {
+                setData(data)
+            })
+            .catch((e) => {
+                toast({
+                    title: e.toString(),
+                    description: "Impossible de récupérer l'article",
+                    status: 'error',
+                    isClosable: true
+                })
+            })
+    }, [refresh])
+
     function deleteArticle() {
-        fetch('http://localhost:8080/api/private/article/' + String(data.id), {
+        fetch(`http://localhost:8080/api/private/article/${articleId}`, {
             method: 'DELETE'
         })
             .then(() => {
@@ -53,9 +70,9 @@ function Read() {
                     title: e.toString(),
                     description: "Impossible de supprimer l'article",
                     status: 'error',
-                    isClosable: true,
+                    isClosable: true
                 })
-            });
+            })
     }
 
     function editArticle() {
@@ -63,7 +80,12 @@ function Read() {
     }
 
     function parseDate(rawDate) {
-        const date = new Date(rawDate)
+        let date
+        if (rawDate === '') {
+            date = new Date()
+        } else {
+            date = new Date(rawDate)
+        }
         return date.getFullYear() + "-" + ("0" + (date.getMonth() + 1)).slice(-2) + "-" + ("0" + date.getDay()).slice(-2)
     }
 
@@ -78,11 +100,10 @@ function Read() {
             return
         }
 
-        const today = new Date()
         const newComment = {
             author: commentAuthor,
             content: commentContent,
-            date: today.getFullYear() + "-" + ("0" + (today.getMonth() + 1)).slice(-2) + "-" + ("0" + today.getDay()).slice(-2),
+            date: parseDate(''),
             article: {
                 id: data.id
             }
@@ -97,7 +118,7 @@ function Read() {
         })
             .then((res) => res.json())
             .then((data) => {
-                setNewComments([...newComments, newComment])
+                setRefresh(!refresh)
                 refs.inputRef.current.value = ''
                 refs.textareaRef.current.value = ''
                 toast({
@@ -113,6 +134,29 @@ function Read() {
                     description: "Impossible d'ajouter le commentaire",
                     status: 'error',
                     isClosable: true,
+                })
+            })
+    }
+
+    function deleteComment(id) {
+        fetch('http://localhost:8080/api/private/comment/' + String(id), {
+            method: 'DELETE'
+        })
+            .then(() => {
+                setRefresh(!refresh)
+                toast({
+                    title: "Succès",
+                    description: "Commentaire supprimé !",
+                    status: 'success',
+                    isClosable: true
+                })
+            })
+            .catch((e) => {
+                toast({
+                    title: e.toString(),
+                    description: "Impossible de supprimer le commentaire",
+                    status: 'error',
+                    isClosable: true
                 })
             })
     }
@@ -183,26 +227,6 @@ function Read() {
                 </VStack>
                 <Box h={4} />
                 {
-                    newComments.map((el, index) => (
-                        <VStack
-                            p={4}
-                            w="100%"
-                            align="flex-start"
-                            key={String(el.id) + String(index)}
-                            boxShadow="md"
-                            borderRadius={8}
-                        >
-                            <Flex w="100%" alignItems="center">
-                                <Avatar mr={3} size="sm" name={el.author} />
-                                <Heading size="sm">{el.author}</Heading>
-                                <Spacer />
-                                <Text fontStyle="italic">{parseDate(el.date)}</Text>
-                            </Flex>
-                            <Text>{el.content}</Text>
-                        </VStack>
-                    ))
-                }
-                {
                     data.comments.map((el) => (
                         <VStack
                             p={4}
@@ -216,7 +240,19 @@ function Read() {
                                 <Avatar mr={3} size="sm" name={el.author} />
                                 <Heading size="sm">{el.author}</Heading>
                                 <Spacer />
-                                <Text fontStyle="italic">{parseDate(el.date)}</Text>
+                                <Text mx={2} fontStyle="italic">{parseDate(el.date)}</Text>
+                                <IconButton
+                                    size="xs"
+                                    icon={<EditIcon />}
+                                    variant="ghost"
+                                />
+                                <Divider orientation='vertical' height={2} />
+                                <IconButton
+                                    size="xs"
+                                    icon={<DeleteIcon />}
+                                    variant="ghost"
+                                    onClick={() => {deleteComment(el.id)}}
+                                />
                             </Flex>
                             <Text>{el.content}</Text>
                         </VStack>
