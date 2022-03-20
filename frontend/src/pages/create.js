@@ -23,7 +23,8 @@ import {
   AccordionPanel,
   Flex,
   Divider,
-  useToast
+  useToast,
+  TagCloseButton
 } from "@chakra-ui/react"
 import { ArrowBackIcon, ChevronRightIcon } from '@chakra-ui/icons'
 import ChakraUIRenderer from 'chakra-ui-markdown-renderer'
@@ -115,6 +116,11 @@ function Create() {
         isClosable: true,
       })
     }
+  }
+
+  // Remove category from article
+  function removeCategory(id) {
+    setAddedCategories(addedCategories.filter((category) => category.id !== Number(id)))
   }
 
   // Create the new category
@@ -341,6 +347,7 @@ function Create() {
                     flexBasis="auto"
                   >
                     <TagLabel>{el.name}</TagLabel>
+                    <TagCloseButton onClick={() => { removeCategory(el.id) }} />
                   </Tag>
                 )
               }
