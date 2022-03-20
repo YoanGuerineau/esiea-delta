@@ -35,10 +35,8 @@ function Create() {
   const colors = ['orange', 'blue', 'cyan', 'facebook', 'gray', 'green', 'linkedin', 'messenger', 'blackAlpha', 'pink', 'purple', 'red', 'teal', 'telegram', 'twitter', 'whatsapp', 'whiteAlpha', 'yellow']
   const navigate = useNavigate();
   const goBack = useCallback(() => navigate('/', { replace: true }), [navigate]);
-  var title = '';
-  var author = '';
-
-  // States
+  const [title, setTitle] = useState('')
+  const [author, setAuthor] = useState('')
   const [markedContent, setMarkedContent] = useState('');
   const [allCategories, setAllCategories] = useState([])
   const [addedCategories, setAddedCategories] = useState([])
@@ -59,7 +57,7 @@ function Create() {
           isClosable: true,
         })
       })
-  })
+  }, [])
 
   // Add category to the article
   function addCategory(id) {
@@ -78,7 +76,7 @@ function Create() {
 
   function createNewCategory(event) {
     if (event.key === "Enter") {
-      const newCategory = { "name": event.target.value}
+      const newCategory = { "name": event.target.value }
 
       // Check if the category already exist and had not already been added in newCategories
       if (!allCategories.some(el => el.name === newCategory.name) && !newCategories.some(el => el.name === newCategory.name)) {
@@ -102,34 +100,53 @@ function Create() {
           name: category.name
         })
       })
-      .then((res) => res.json())
-      .then((data) => {
-        // Add id to category list
-        newCategories[index]['id'] = data.id
-        // Secondly send article data
-        const today = new Date()
-        fetch('http://localhost:8080/api/private/article', {
-          method: 'POST',
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            title,
-            author,
-            date: today.getFullYear() + "-" + ("0" + (today.getMonth() + 1)).slice(-2) + "-" + ("0" + today.getDay()).slice(-2),
-            content: markedContent
-          })
-        })
         .then((res) => res.json())
         .then((data) => {
-          // Push categories to the article
-          const mixCategories = addedCategories.concat(newCategories)
-          console.log(mixCategories)
-          mixCategories.forEach((category) => {
-            fetch('http://localhost:8080/api/private/category/' + String(category.id) + '/' + String(data.id), {
-              method: 'POST'
-            })
+          // Add id to category list
+          newCategories[index]['id'] = data.id
+        })
+        .catch((e) => {
+          toast({
+            title: e.toString(),
+            description: "Impossible de créer le(s) nouvelle(s) catégorie(s)",
+            status: 'error',
+            isClosable: true,
+          })
+        })
+    })
+
+    // Secondly send article data
+    const today = new Date()
+    fetch('http://localhost:8080/api/private/article', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        title,
+        author,
+        date: today.getFullYear() + "-" + ("0" + (today.getMonth() + 1)).slice(-2) + "-" + ("0" + today.getDay()).slice(-2),
+        content: markedContent
+      })
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        // Push categories to the article
+        const mixCategories = addedCategories.concat(newCategories)
+        if (mixCategories.length === 0) {
+          toast({
+            title: 'Erreur : catégorie manquante',
+            description: "Impossible de créer le nouvel article",
+            status: 'error',
+            isClosable: true,
+          })
+        }
+
+        mixCategories.forEach((category) => {
+          fetch('http://localhost:8080/api/private/category/' + String(category.id) + '/' + String(data.id), {
+            method: 'POST'
+          })
             .then(() => {
               toast({
                 title: "Succès",
@@ -139,26 +156,16 @@ function Create() {
                 onCloseComplete: goBack()
               })
             })
-          })
-        })
-        .catch((e) => {
-          toast({
-            title: e.toString(),
-            description: "Impossible de créer le nouvel article",
-            status: 'error',
-            isClosable: true,
-          })
         })
       })
       .catch((e) => {
         toast({
           title: e.toString(),
-          description: "Impossible de créer le(s) nouvelle(s) catégorie(s)",
+          description: "Impossible de créer le nouvel article",
           status: 'error',
           isClosable: true,
         })
       })
-    })
   }
 
   return (
@@ -192,9 +199,9 @@ function Create() {
             </Select>
             <Input
               type='text'
-              placeholder='Créer une catégorie'
+              placeholder='Créer une catégorie et appuyer sur Entrer'
               boxShadow="inner"
-              onKeyPress={(event) => {createNewCategory(event)}}
+              onKeyPress={(event) => { createNewCategory(event) }}
             />
             <Flex
               p={2}
@@ -240,7 +247,7 @@ function Create() {
               isRequired
               type='text'
               boxShadow="inner"
-              onChange={(event) => { title = event.target.value }}
+              onChange={(event) => { setTitle(event.target.value) }}
             />
             <Box h={2} />
             <FormLabel htmlFor='text'>Contenu</FormLabel>
@@ -258,7 +265,7 @@ function Create() {
               isRequired
               type='text'
               boxShadow="inner"
-              onChange={(event) => { author = event.target.value }}
+              onChange={(event) => { setAuthor(event.target.value) }}
             />
           </VStack>
         </FormControl>
