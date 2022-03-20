@@ -6,7 +6,8 @@ import {
     Text,
 	HStack,
 	Tag,
-	Spacer
+	Spacer,
+	SlideFade
 } from "@chakra-ui/react";
 
 
@@ -21,7 +22,8 @@ function ArticleCard(props) {
     }
 
     return (
-        <VStack
+		<SlideFade w="100%" in={true}>
+			<VStack
 			p={2}
 			w="100%"
 			borderRadius={8}
@@ -57,6 +59,7 @@ function ArticleCard(props) {
 			</Text>
 			<Text w="100%" textAlign="end" fontStyle="italic">{props.data.author + ", " + parseDate(props.data.date)}</Text>
 		</VStack>
+		</SlideFade>
     )
 }
 
