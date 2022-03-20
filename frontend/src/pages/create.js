@@ -192,7 +192,7 @@ function Create() {
         <FormControl isRequired m="2" w="100%">
           <VStack spacing={2} align="flex-start">
             <FormLabel htmlFor='text'>Ajouter une catégorie</FormLabel>
-            <Select placeholder='Catégories existantes' variant='filled' onChange={(event) => { addCategory(event.target.value) }}>
+            <Select placeholder='Catégories existantes' onChange={(event) => { addCategory(event.target.value) }}>
               {
                 allCategories.map((el) => <option key={el.id} value={el.id}>{el.name}</option>)
               }

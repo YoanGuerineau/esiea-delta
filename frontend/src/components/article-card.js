@@ -22,7 +22,7 @@ function ArticleCard(props) {
     }
 
     return (
-		<SlideFade w="100%" in={true}>
+		<SlideFade style={{width: '100%'}} in={true} offsetY={-10}>
 			<VStack
 			p={2}
 			w="100%"
