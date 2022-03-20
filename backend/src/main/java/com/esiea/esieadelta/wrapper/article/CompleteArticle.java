@@ -26,6 +26,7 @@ public class CompleteArticle extends BasicArticle {
 	}
 
 	public void setCategories(List<Category> categories) {
+		this.categories = new ArrayList<>();
 		for ( Category category : categories) {
 			getCategories().add(new BasicCategory(category));
 		}
