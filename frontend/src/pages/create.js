@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import {
   Box,
   Heading,
@@ -24,9 +24,9 @@ import {
   Flex,
   Divider,
   useToast
-} from "@chakra-ui/react";
+} from "@chakra-ui/react"
 import { ArrowBackIcon, ChevronRightIcon } from '@chakra-ui/icons'
-import ChakraUIRenderer from 'chakra-ui-markdown-renderer';
+import ChakraUIRenderer from 'chakra-ui-markdown-renderer'
 import ReactMarkdown from 'react-markdown'
 
 
@@ -34,17 +34,51 @@ function Create() {
   const toast = useToast()
   const colors = ['orange', 'blue', 'cyan', 'facebook', 'gray', 'green', 'linkedin', 'messenger', 'blackAlpha', 'pink', 'purple', 'red', 'teal', 'telegram', 'twitter', 'whatsapp', 'whiteAlpha', 'yellow']
   const navigate = useNavigate();
-  const goBack = useCallback(() => navigate('/', { replace: true }), [navigate]);
-  var title = '';
-  var author = '';
-
-  // States
-  const [markedContent, setMarkedContent] = useState('');
+  const goBack = useCallback(() => navigate('/', { replace: true }), [navigate])
+  const [title, setTitle] = useState('')
+  const [author, setAuthor] = useState('')
+  const [markedContent, setMarkedContent] = useState('')
   const [allCategories, setAllCategories] = useState([])
   const [addedCategories, setAddedCategories] = useState([])
-  const [newCategories, setNewCategories] = useState([])
+  const [refreshAllCategories, setRefreshAllCategories] = useState(false)
+  const articleId = useLocation().state
+  const refs = {
+    titlePageRef: useRef(null),
+    titleRef: useRef(null),
+    contentRef: useRef(null),
+    authorRef: useRef(null)
+  }
 
-  // Effects
+  // Set page for write or edit article
+  useEffect(() => {
+    if (articleId === null) {
+      document.title = 'Nouvel article - Delta Blog'
+      refs.titlePageRef.current.innerText = "Écrire un article"
+    } else {
+      fetch(`http://localhost:8080/api/private/article/${articleId}`)
+        .then((res) => res.json())
+        .then((data) => {
+          document.title = 'Édition - Delta Blog'
+          refs.titlePageRef.current.innerText = "Éditer l'article"
+          setAddedCategories(data.categories)
+          setTitle(data.title)
+          setMarkedContent(data.content)
+          setAuthor(data.author)
+          refs.titleRef.current.value = data.title
+          refs.contentRef.current.value = data.content
+          refs.authorRef.current.value = data.author
+        })
+        .catch((e) => {
+          toast({
+            title: e.toString(),
+            description: "Impossible de récupérer l'article",
+            status: 'error',
+            isClosable: true
+          })
+        })
+    }
+  }, [articleId])
+
   useEffect(() => {
     fetch('http://localhost:8080/api/private/category')
       .then((res) => res.json())
@@ -56,10 +90,10 @@ function Create() {
           title: e.toString(),
           description: "Impossible de récupérer les catrégories depuis le serveur",
           status: 'error',
-          isClosable: true,
+          isClosable: true
         })
       })
-  }, [])
+  }, [refreshAllCategories])
 
   // Add category to the article
   function addCategory(id) {
@@ -73,92 +107,183 @@ function Create() {
           ]
         })
       }
+    } else {
+      toast({
+        title: 'Erreur',
+        description: "Catégorie déjà ajouté à l'article",
+        status: 'warning',
+        isClosable: true,
+      })
     }
   }
 
+  // Create the new category
   function createNewCategory(event) {
     if (event.key === "Enter") {
-      const newCategory = { "name": event.target.value}
-
-      // Check if the category already exist and had not already been added in newCategories
-      if (!allCategories.some(el => el.name === newCategory.name) && !newCategories.some(el => el.name === newCategory.name)) {
-        setNewCategories([...newCategories, newCategory])
-      }
-      // Clear the input
+      const newCategory = { "name": event.target.value }
       event.target.value = ''
-    }
-  }
 
-  function sendArticle() {
-    // Firstly send new categories
-    newCategories.forEach((category, index) => {
-      fetch('http://localhost:8080/api/private/category', {
-        method: 'POST',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          name: category.name
-        })
-      })
-      .then((res) => res.json())
-      .then((data) => {
-        // Add id to category list
-        newCategories[index]['id'] = data.id
-        // Secondly send article data
-        const today = new Date()
-        fetch('http://localhost:8080/api/private/article', {
+      // Check if the category already exist
+      if (!allCategories.some(el => el.name === newCategory.name)) {
+        fetch('http://localhost:8080/api/private/category', {
           method: 'POST',
           headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            title,
-            author,
-            date: today.getFullYear() + "-" + ("0" + (today.getMonth() + 1)).slice(-2) + "-" + ("0" + today.getDay()).slice(-2),
-            content: markedContent
+            name: newCategory.name
           })
         })
-        .then((res) => res.json())
-        .then((data) => {
-          // Push categories to the article
-          const mixCategories = addedCategories.concat(newCategories)
-          console.log(mixCategories)
-          mixCategories.forEach((category) => {
-            fetch('http://localhost:8080/api/private/category/' + String(category.id) + '/' + String(data.id), {
-              method: 'POST'
+          .then((res) => res.json())
+          .then((data) => {
+            setRefreshAllCategories(!refreshAllCategories)
+            setAddedCategories((prevState) => {
+              return [
+                ...prevState,
+                data
+              ]
             })
-            .then(() => {
-              toast({
-                title: "Succès",
-                description: "Article créé avec succès !",
-                status: 'success',
-                isClosable: true,
-                onCloseComplete: goBack()
-              })
+            toast({
+              title: 'Succès',
+              description: "Catégorie créé",
+              status: 'success',
+              isClosable: true,
             })
           })
+          .catch((e) => {
+            toast({
+              title: e.toString(),
+              description: "Serveur injoignable ou catégorie existante",
+              status: 'error',
+              isClosable: true,
+            })
+          })
+      } else {
+        toast({
+          title: 'Erreur',
+          description: "La catégorie existe déjà",
+          status: 'warning',
+          isClosable: true,
         })
-        .catch((e) => {
+      }
+    }
+  }
+
+  // Send article to the server
+  function sendArticle() {
+    fetch('http://localhost:8080/api/private/article', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        title,
+        author,
+        date: new Date().toISOString(),
+        content: markedContent
+      })
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        // Push categories to the article
+        if (addedCategories.length === 0) {
           toast({
-            title: e.toString(),
-            description: "Impossible de créer le nouvel article",
-            status: 'error',
+            title: 'Erreur',
+            description: "L'article ne contient aucune catégorie",
+            status: 'warning',
             isClosable: true,
           })
-        })
+        } else {
+          addedCategories.forEach((category) => {
+            fetch(`http://localhost:8080/api/private/category/${category.id}/${data.id}`, {
+              method: 'POST'
+            })
+              .catch((e) => {
+                toast({
+                  title: e.toString(),
+                  description: `Impossible d'ajouter la catégorie : ${category}`,
+                  status: 'error',
+                  isClosable: true,
+                })
+              })
+          })
+          toast({
+            title: "Succès",
+            description: "Article créé avec succès !",
+            status: 'success',
+            isClosable: true,
+            onCloseComplete: goBack()
+          })
+        }
       })
       .catch((e) => {
         toast({
           title: e.toString(),
-          description: "Impossible de créer le(s) nouvelle(s) catégorie(s)",
+          description: "Impossible de créer le nouvel article",
           status: 'error',
           isClosable: true,
         })
       })
+  }
+
+  // Send edited article
+  function sendEditedArticle() {
+    fetch('http://localhost:8080/api/private/article', {
+      method: 'PATCH',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        id: articleId,
+        title,
+        author,
+        content: markedContent
+      })
     })
+      .then((res) => res.json())
+      .then((data) => {
+        // Push categories to the article
+        if (addedCategories.length === 0) {
+          toast({
+            title: 'Erreur',
+            description: "L'article ne contient aucune catégorie",
+            status: 'warning',
+            isClosable: true,
+          })
+        } else {
+          addedCategories.forEach((category) => {
+            fetch(`http://localhost:8080/api/private/category/${category.id}/${data.id}`, {
+              method: 'POST'
+            })
+              .catch((e) => {
+                toast({
+                  title: e.toString(),
+                  description: `Impossible d'ajouter la catégorie : ${category}`,
+                  status: 'error',
+                  isClosable: true,
+                })
+              })
+          })
+          toast({
+            title: "Succès",
+            description: "Article modifié avec succès !",
+            status: 'success',
+            isClosable: true,
+            onCloseComplete: goBack()
+          })
+        }
+      })
+      .catch((e) => {
+        toast({
+          title: e.toString(),
+          description: "Impossible de modifier le nouvel article",
+          status: 'error',
+          isClosable: true,
+        })
+      })
   }
 
   return (
@@ -181,16 +306,21 @@ function Create() {
             </BreadcrumbItem>
           </Breadcrumb>
         </Flex>
-        <Heading m={2}>Écrire un article</Heading>
+        <Heading m={2} ref={refs.titlePageRef}></Heading>
         <FormControl isRequired m="2" w="100%">
           <VStack spacing={2} align="flex-start">
             <FormLabel htmlFor='text'>Ajouter une catégorie</FormLabel>
-            <Select placeholder='Catégories existantes' variant='filled' onChange={(event) => { addCategory(event.target.value) }}>
+            <Select placeholder='Catégories existantes' onChange={(event) => { addCategory(event.target.value) }}>
               {
                 allCategories.map((el) => <option key={el.id} value={el.id}>{el.name}</option>)
               }
             </Select>
-            <Input type='text' placeholder='Créer une catégorie' onKeyPress={(event) => {createNewCategory(event)}} />
+            <Input
+              type='text'
+              placeholder='Créer une catégorie et appuyer sur Entrer'
+              boxShadow="inner"
+              onKeyPress={(event) => { createNewCategory(event) }}
+            />
             <Flex
               p={2}
               w="100%"
@@ -214,40 +344,44 @@ function Create() {
                   </Tag>
                 )
               }
-              {
-                newCategories.map((el, index) =>
-                  <Tag
-                    key={index}
-                    size="md"
-                    borderRadius='full'
-                    variant="outline"
-                    colorScheme={colors[index % 18]}
-                    fontWeight="bold"
-                  >
-                    <TagLabel>{el.name}</TagLabel>
-                  </Tag>
-                )
-              }
             </Flex>
-            <Box h={4} />
-            <FormLabel htmlFor='text'>Titre</FormLabel>
-            <Input isRequired type='text' onChange={(event) => { title = event.target.value }} />
-            <Box h={4} />
-            <FormLabel htmlFor='text'>Contenu</FormLabel>
-            <Textarea
+            <Box h={2} />
+            <FormLabel htmlFor='title'>Titre</FormLabel>
+            <Input
+              ref={refs.titleRef}
               isRequired
+              name='title'
+              type='text'
+              boxShadow="inner"
+              onChange={(event) => { setTitle(event.target.value) }}
+            />
+            <Box h={2} />
+            <FormLabel htmlFor='content'>Contenu</FormLabel>
+            <Textarea
+              ref={refs.contentRef}
+              isRequired
+              name='content'
               placeholder='Écrire un article au format Markdown'
               size='sm'
+              borderRadius={6}
+              boxShadow="inner"
               onChange={(event) => { setMarkedContent(event.target.value) }}
             />
-            <Box h={4} />
-            <FormLabel htmlFor='text'>Auteur</FormLabel>
-            <Input isRequired type='text' onChange={(event) => { author = event.target.value }} />
+            <Box h={2} />
+            <FormLabel htmlFor='author'>Auteur</FormLabel>
+            <Input
+              ref={refs.authorRef}
+              isRequired
+              name='author'
+              type='text'
+              boxShadow="inner"
+              onChange={(event) => { setAuthor(event.target.value) }}
+            />
           </VStack>
         </FormControl>
-        <Button onClick={sendArticle}>Envoyer</Button>
+        <Button onClick={articleId === null ? sendArticle : sendEditedArticle}>Envoyer</Button>
         <Box h={4} />
-        <Accordion w="100%" allowToggle>
+        <Accordion w="100%" allowToggle border="1px" borderColor="gray.100" borderRadius={6}>
           <AccordionItem>
             <h2>
               <AccordionButton>
