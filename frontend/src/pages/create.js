@@ -24,9 +24,9 @@ import {
   Flex,
   Divider,
   useToast
-} from "@chakra-ui/react";
+} from "@chakra-ui/react"
 import { ArrowBackIcon, ChevronRightIcon } from '@chakra-ui/icons'
-import ChakraUIRenderer from 'chakra-ui-markdown-renderer';
+import ChakraUIRenderer from 'chakra-ui-markdown-renderer'
 import ReactMarkdown from 'react-markdown'
 
 
@@ -34,13 +34,13 @@ function Create() {
   const toast = useToast()
   const colors = ['orange', 'blue', 'cyan', 'facebook', 'gray', 'green', 'linkedin', 'messenger', 'blackAlpha', 'pink', 'purple', 'red', 'teal', 'telegram', 'twitter', 'whatsapp', 'whiteAlpha', 'yellow']
   const navigate = useNavigate();
-  const goBack = useCallback(() => navigate('/', { replace: true }), [navigate]);
+  const goBack = useCallback(() => navigate('/', { replace: true }), [navigate])
   const [title, setTitle] = useState('')
   const [author, setAuthor] = useState('')
-  const [markedContent, setMarkedContent] = useState('');
+  const [markedContent, setMarkedContent] = useState('')
   const [allCategories, setAllCategories] = useState([])
   const [addedCategories, setAddedCategories] = useState([])
-  const [newCategories, setNewCategories] = useState([])
+  const [refreshAllCategories, setRefreshAllCategories] = useState(false)
 
   // Effects
   useEffect(() => {
@@ -54,10 +54,10 @@ function Create() {
           title: e.toString(),
           description: "Impossible de récupérer les catrégories depuis le serveur",
           status: 'error',
-          isClosable: true,
+          isClosable: true
         })
       })
-  }, [])
+  }, [refreshAllCategories])
 
   // Add category to the article
   function addCategory(id) {
@@ -71,51 +71,71 @@ function Create() {
           ]
         })
       }
+    } else {
+      toast({
+        title: 'Erreur',
+        description: "Catégorie déjà ajouté à l'article",
+        status: 'warning',
+        isClosable: true,
+      })
     }
   }
 
+  // Create the new category
   function createNewCategory(event) {
     if (event.key === "Enter") {
       const newCategory = { "name": event.target.value }
-
-      // Check if the category already exist and had not already been added in newCategories
-      if (!allCategories.some(el => el.name === newCategory.name) && !newCategories.some(el => el.name === newCategory.name)) {
-        setNewCategories([...newCategories, newCategory])
-      }
-      // Clear the input
       event.target.value = ''
+
+      // Check if the category already exist
+      if (!allCategories.some(el => el.name === newCategory.name)) {
+        fetch('http://localhost:8080/api/private/category', {
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            name: newCategory.name
+          })
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            setRefreshAllCategories(!refreshAllCategories)
+            setAddedCategories((prevState) => {
+              return [
+                ...prevState,
+                data
+              ]
+            })
+            toast({
+              title: 'Succès',
+              description: "Catégorie créé",
+              status: 'success',
+              isClosable: true,
+            })
+          })
+          .catch((e) => {
+            toast({
+              title: e.toString(),
+              description: "Serveur injoignable ou catégorie existante",
+              status: 'error',
+              isClosable: true,
+            })
+          })
+      } else {
+        toast({
+          title: 'Erreur',
+          description: "La catégorie existe déjà",
+          status: 'warning',
+          isClosable: true,
+        })
+      }
     }
   }
 
+  // Send article to the server
   function sendArticle() {
-    // Firstly send new categories
-    newCategories.forEach((category, index) => {
-      fetch('http://localhost:8080/api/private/category', {
-        method: 'POST',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          name: category.name
-        })
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          // Add id to category list
-          newCategories[index]['id'] = data.id
-        })
-        .catch((e) => {
-          toast({
-            title: e.toString(),
-            description: "Impossible de créer le(s) nouvelle(s) catégorie(s)",
-            status: 'error',
-            isClosable: true,
-          })
-        })
-    })
-
-    // Secondly send article data
     const today = new Date()
     fetch('http://localhost:8080/api/private/article', {
       method: 'POST',
@@ -133,30 +153,35 @@ function Create() {
       .then((res) => res.json())
       .then((data) => {
         // Push categories to the article
-        const mixCategories = addedCategories.concat(newCategories)
-        if (mixCategories.length === 0) {
+        if (addedCategories.length === 0) {
           toast({
             title: 'Erreur : catégorie manquante',
             description: "Impossible de créer le nouvel article",
             status: 'error',
             isClosable: true,
           })
-        }
-
-        mixCategories.forEach((category) => {
-          fetch('http://localhost:8080/api/private/category/' + String(category.id) + '/' + String(data.id), {
-            method: 'POST'
-          })
-            .then(() => {
-              toast({
-                title: "Succès",
-                description: "Article créé avec succès !",
-                status: 'success',
-                isClosable: true,
-                onCloseComplete: goBack()
-              })
+        } else {
+          addedCategories.forEach((category) => {
+            fetch(`http://localhost:8080/api/private/category/${category.id}/${data.id}`, {
+              method: 'POST'
             })
-        })
+              .catch((e) => {
+                toast({
+                  title: e.toString(),
+                  description: `Impossible d'ajouter la catégorie : ${category}`,
+                  status: 'error',
+                  isClosable: true,
+                })
+              })
+          })
+          toast({
+            title: "Succès",
+            description: "Article créé avec succès !",
+            status: 'success',
+            isClosable: true,
+            onCloseComplete: goBack()
+          })
+        }
       })
       .catch((e) => {
         toast({
@@ -221,20 +246,6 @@ function Create() {
                     flexGrow="0"
                     flexShrink="0"
                     flexBasis="auto"
-                  >
-                    <TagLabel>{el.name}</TagLabel>
-                  </Tag>
-                )
-              }
-              {
-                newCategories.map((el, index) =>
-                  <Tag
-                    key={index}
-                    size="md"
-                    borderRadius='full'
-                    variant="outline"
-                    colorScheme={colors[index % 18]}
-                    fontWeight="bold"
                   >
                     <TagLabel>{el.name}</TagLabel>
                   </Tag>
