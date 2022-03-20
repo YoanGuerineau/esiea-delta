@@ -172,7 +172,6 @@ function Create() {
 
   // Send article to the server
   function sendArticle() {
-    const today = new Date()
     fetch('http://localhost:8080/api/private/article', {
       method: 'POST',
       headers: {
@@ -182,7 +181,7 @@ function Create() {
       body: JSON.stringify({
         title,
         author,
-        date: today.getFullYear() + "-" + ("0" + (today.getMonth() + 1)).slice(-2) + "-" + ("0" + today.getDay()).slice(-2),
+        date: new Date().toISOString(),
         content: markedContent
       })
     })

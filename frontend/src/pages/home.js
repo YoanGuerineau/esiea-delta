@@ -242,7 +242,7 @@ function Home() {
 					) : ''
 				}
 				{
-					articles.map((el) =>
+					articles.slice(0).reverse().map((el) =>
 						<ArticleCard data={el} key={el.id} />
 					)
 				}

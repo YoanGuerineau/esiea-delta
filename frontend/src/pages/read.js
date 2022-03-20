@@ -85,14 +85,9 @@ function Read() {
             })
     }
 
-    function parseDate(rawDate) {
-        let date
-        if (rawDate === '') {
-            date = new Date()
-        } else {
-            date = new Date(rawDate)
-        }
-        return date.getFullYear() + "-" + ("0" + (date.getMonth() + 1)).slice(-2) + "-" + ("0" + date.getDay()).slice(-2)
+    function preciseDate(rawDate) {
+        const date = new Date(rawDate)
+        return (date.getDate() < 10 ? "0" + date.getDate(): date.getDate()) + "/" + ("0" + (date.getMonth() + 1)).slice(-2) + "/" + date.getFullYear() + ' à ' + date.getHours() + ':' + (date.getMinutes() > 9 ? date.getMinutes() : "0" + date.getMinutes())
     }
 
     function sendComment() {
@@ -116,7 +111,7 @@ function Read() {
                 body: JSON.stringify({
                     author: commentAuthor,
                     content: commentContent,
-                    date: parseDate(''),
+                    date: (new Date()).toISOString(),
                     article: {
                         id: data.id
                     }
@@ -245,7 +240,7 @@ function Read() {
                     />
                 </Flex>
                 <Heading p={4}>{data.title}</Heading>
-                <Text w="100%" textAlign="end" fontStyle="italic">{parseDate(data.date)}</Text>
+                <Text w="100%" textAlign="end" fontStyle="italic">{preciseDate(data.date)}</Text>
                 <Box w="100%">
                     <ReactMarkdown w="100%" components={ChakraUIRenderer()} children={data.content} skipHtml />
                 </Box>
@@ -276,7 +271,7 @@ function Read() {
                 </VStack>
                 <Box h={4} />
                 {
-                    data.comments.map((el) => (
+                    data.comments.slice(0).reverse().map((el) => (
                         <VStack
                             p={4}
                             w="100%"
@@ -289,7 +284,7 @@ function Read() {
                                 <Avatar mr={3} size="sm" name={el.author} />
                                 <Heading size="sm">{el.author}</Heading>
                                 <Spacer />
-                                <Text mx={2} fontStyle="italic">{parseDate(el.date)}</Text>
+                                <Text mx={2} fontStyle="italic">{preciseDate(el.date)}</Text>
                                 <IconButton
                                     size="xs"
                                     icon={<EditIcon />}

@@ -16,9 +16,9 @@ function ArticleCard(props) {
     const navigate = useNavigate();
 	const goToReadArticle = useCallback(() => navigate('/read', { state: props.data.id, replace: true }), [navigate]);
 
-	function parseDate(rawDate) {
+	function preciseDate(rawDate) {
         const date = new Date(rawDate)
-        return date.getFullYear() + "-" + ("0" + (date.getMonth() + 1)).slice(-2) + "-" + ("0" + date.getDay()).slice(-2)
+        return (date.getDate() < 10 ? "0" + date.getDate(): date.getDate()) + "/" + ("0" + (date.getMonth() + 1)).slice(-2) + "/" + date.getFullYear() + ' à ' + date.getHours() + ':' + (date.getMinutes() > 9 ? date.getMinutes() : "0" + date.getMinutes())
     }
 
     return (
@@ -57,7 +57,7 @@ function ArticleCard(props) {
 			<Text w="100%" noOfLines={4}>
 				{props.data.content}
 			</Text>
-			<Text w="100%" textAlign="end" fontStyle="italic">{props.data.author + ", " + parseDate(props.data.date)}</Text>
+			<Text w="100%" textAlign="end" fontStyle="italic">{props.data.author + ", " + preciseDate(props.data.date)}</Text>
 		</VStack>
 		</SlideFade>
     )
