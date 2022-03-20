@@ -27,8 +27,9 @@ function Read() {
     const navigate = useNavigate()
     const goBack = useCallback(() => navigate('/', { replace: true }), [navigate])
     const articleId = useLocation().state
-    const [data, setData] = useState({comments: []})
+    const [data, setData] = useState({ comments: [] })
     const [refresh, setRefresh] = useState(false)
+    const [editingComment, setEditingComment] = useState({ editing: false, id: 0})
     const [commentAuthor, setCommentAuthor] = useState('')
     const [commentContent, setCommentContent] = useState('')
     const refs = {
@@ -100,42 +101,85 @@ function Read() {
             return
         }
 
-        const newComment = {
-            author: commentAuthor,
-            content: commentContent,
-            date: parseDate(''),
-            article: {
-                id: data.id
-            }
+        if (!editingComment.editing) {
+            fetch('http://localhost:8080/api/private/comment', {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    author: commentAuthor,
+                    content: commentContent,
+                    date: parseDate(''),
+                    article: {
+                        id: data.id
+                    }
+                })
+            })
+                .then((res) => res.json())
+                .then((data) => {
+                    setRefresh(!refresh)
+                    refs.inputRef.current.value = ''
+                    refs.textareaRef.current.value = ''
+                    toast({
+                        title: "Succès",
+                        description: "Commentaire ajouté !",
+                        status: 'success',
+                        isClosable: true
+                    })
+                })
+                .catch((e) => {
+                    toast({
+                        title: e.toString(),
+                        description: "Impossible d'ajouter le commentaire",
+                        status: 'error',
+                        isClosable: true,
+                    })
+                })
+        } else {
+            fetch('http://localhost:8080/api/private/comment', {
+                method: 'PATCH',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    id: editingComment.id,
+                    author: commentAuthor,
+                    content: commentContent
+                })
+            })
+                .then((res) => res.json())
+                .then((data) => {
+                    setRefresh(!refresh)
+                    refs.inputRef.current.value = ''
+                    refs.textareaRef.current.value = ''
+                    setEditingComment({editing: false, id: 0})
+                    toast({
+                        title: "Succès",
+                        description: "Commentaire modifié !",
+                        status: 'success',
+                        isClosable: true
+                    })
+                })
+                .catch((e) => {
+                    toast({
+                        title: e.toString(),
+                        description: "Impossible de modifier le commentaire",
+                        status: 'error',
+                        isClosable: true,
+                    })
+                })
         }
-        fetch('http://localhost:8080/api/private/comment', {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(newComment)
-        })
-            .then((res) => res.json())
-            .then((data) => {
-                setRefresh(!refresh)
-                refs.inputRef.current.value = ''
-                refs.textareaRef.current.value = ''
-                toast({
-                    title: "Succès",
-                    description: "Commentaire ajouté !",
-                    status: 'success',
-                    isClosable: true
-                })
-            })
-            .catch((e) => {
-                toast({
-                    title: e.toString(),
-                    description: "Impossible d'ajouter le commentaire",
-                    status: 'error',
-                    isClosable: true,
-                })
-            })
+    }
+
+    function editComment(el) {
+        setCommentAuthor(el.author)
+        setCommentContent(el.content)
+        refs.inputRef.current.value = el.author
+        refs.textareaRef.current.value = el.content
+        setEditingComment({ editing: true, id: el.id})
     }
 
     function deleteComment(id) {
@@ -245,13 +289,14 @@ function Read() {
                                     size="xs"
                                     icon={<EditIcon />}
                                     variant="ghost"
+                                    onClick={() => { editComment(el) }}
                                 />
                                 <Divider orientation='vertical' height={2} />
                                 <IconButton
                                     size="xs"
                                     icon={<DeleteIcon />}
                                     variant="ghost"
-                                    onClick={() => {deleteComment(el.id)}}
+                                    onClick={() => { deleteComment(el.id) }}
                                 />
                             </Flex>
                             <Text>{el.content}</Text>
