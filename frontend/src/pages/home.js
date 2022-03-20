@@ -31,6 +31,8 @@ function Home() {
 	const [allCategories, setAllCategories] = useState([])
 	const [currentCategory, setCurrentCategory] = useState({})
 
+	document.title = "Delta Blog"
+
 	// Get all articles
 	useEffect(() => {
 		if (searching) {

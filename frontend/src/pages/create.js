@@ -49,13 +49,16 @@ function Create() {
     authorRef: useRef(null)
   }
 
+  // Set page for write or edit article
   useEffect(() => {
     if (articleId === null) {
+      document.title = 'Nouvel article - Delta Blog'
       refs.titlePageRef.current.innerText = "Écrire un article"
     } else {
       fetch(`http://localhost:8080/api/private/article/${articleId}`)
         .then((res) => res.json())
         .then((data) => {
+          document.title = 'Édition - Delta Blog'
           refs.titlePageRef.current.innerText = "Éditer l'article"
           setAddedCategories(data.categories)
           setTitle(data.title)

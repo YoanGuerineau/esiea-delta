@@ -38,6 +38,14 @@ function Read() {
     }
     const goToEditArticle = useCallback(() => navigate('/create', { state: articleId, replace: true }), [navigate])
 
+    // Change document title page 
+    useEffect(() => {
+        if (data.hasOwnProperty('title')) {
+            document.title = data.title + ' - Delta Blog'
+        }
+    }, [data])
+    
+    // Get article data
     useEffect(() => {
         fetch(`http://localhost:8080/api/private/article/${articleId}`)
             .then((res) => res.json())
