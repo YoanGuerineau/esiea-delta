@@ -36,6 +36,7 @@ function Read() {
         inputRef: useRef(null),
         textareaRef: useRef(null)
     }
+    const goToEditArticle = useCallback(() => navigate('/create', { state: articleId, replace: true }), [navigate])
 
     useEffect(() => {
         fetch(`http://localhost:8080/api/private/article/${articleId}`)
@@ -74,10 +75,6 @@ function Read() {
                     isClosable: true
                 })
             })
-    }
-
-    function editArticle() {
-
     }
 
     function parseDate(rawDate) {
@@ -229,7 +226,7 @@ function Read() {
                         isRound={true}
                         icon={<EditIcon />}
                         variant="ghost"
-                        onClick={editArticle}
+                        onClick={goToEditArticle}
                     />
                     <Divider orientation='vertical' height={4} />
                     <IconButton

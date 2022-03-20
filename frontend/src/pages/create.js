@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import {
   Box,
   Heading,
@@ -41,8 +41,41 @@ function Create() {
   const [allCategories, setAllCategories] = useState([])
   const [addedCategories, setAddedCategories] = useState([])
   const [refreshAllCategories, setRefreshAllCategories] = useState(false)
+  const articleId = useLocation().state
+  const refs = {
+    titlePageRef: useRef(null),
+    titleRef: useRef(null),
+    contentRef: useRef(null),
+    authorRef: useRef(null)
+  }
 
-  // Effects
+  useEffect(() => {
+    if (articleId === null) {
+      refs.titlePageRef.current.innerText = "Écrire un article"
+    } else {
+      fetch(`http://localhost:8080/api/private/article/${articleId}`)
+        .then((res) => res.json())
+        .then((data) => {
+          refs.titlePageRef.current.innerText = "Éditer l'article"
+          setAddedCategories(data.categories)
+          setTitle(data.title)
+          setMarkedContent(data.content)
+          setAuthor(data.author)
+          refs.titleRef.current.value = data.title
+          refs.contentRef.current.value = data.content
+          refs.authorRef.current.value = data.author
+        })
+        .catch((e) => {
+          toast({
+            title: e.toString(),
+            description: "Impossible de récupérer l'article",
+            status: 'error',
+            isClosable: true
+          })
+        })
+    }
+  }, [articleId])
+
   useEffect(() => {
     fetch('http://localhost:8080/api/private/category')
       .then((res) => res.json())
@@ -155,9 +188,9 @@ function Create() {
         // Push categories to the article
         if (addedCategories.length === 0) {
           toast({
-            title: 'Erreur : catégorie manquante',
-            description: "Impossible de créer le nouvel article",
-            status: 'error',
+            title: 'Erreur',
+            description: "L'article ne contient aucune catégorie",
+            status: 'warning',
             isClosable: true,
           })
         } else {
@@ -193,6 +226,64 @@ function Create() {
       })
   }
 
+  // Send edited article
+  function sendEditedArticle() {
+    fetch('http://localhost:8080/api/private/article', {
+      method: 'PATCH',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        id: articleId,
+        title,
+        author,
+        content: markedContent
+      })
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        // Push categories to the article
+        if (addedCategories.length === 0) {
+          toast({
+            title: 'Erreur',
+            description: "L'article ne contient aucune catégorie",
+            status: 'warning',
+            isClosable: true,
+          })
+        } else {
+          addedCategories.forEach((category) => {
+            fetch(`http://localhost:8080/api/private/category/${category.id}/${data.id}`, {
+              method: 'POST'
+            })
+              .catch((e) => {
+                toast({
+                  title: e.toString(),
+                  description: `Impossible d'ajouter la catégorie : ${category}`,
+                  status: 'error',
+                  isClosable: true,
+                })
+              })
+          })
+          toast({
+            title: "Succès",
+            description: "Article modifié avec succès !",
+            status: 'success',
+            isClosable: true,
+            onCloseComplete: goBack()
+          })
+        }
+      })
+      .catch((e) => {
+        toast({
+          title: e.toString(),
+          description: "Impossible de modifier le nouvel article",
+          status: 'error',
+          isClosable: true,
+        })
+      })
+  }
+
   return (
     <Box>
       <VStack spacing={8}>
@@ -213,7 +304,7 @@ function Create() {
             </BreadcrumbItem>
           </Breadcrumb>
         </Flex>
-        <Heading m={2}>Écrire un article</Heading>
+        <Heading m={2} ref={refs.titlePageRef}></Heading>
         <FormControl isRequired m="2" w="100%">
           <VStack spacing={2} align="flex-start">
             <FormLabel htmlFor='text'>Ajouter une catégorie</FormLabel>
@@ -253,17 +344,21 @@ function Create() {
               }
             </Flex>
             <Box h={2} />
-            <FormLabel htmlFor='text'>Titre</FormLabel>
+            <FormLabel htmlFor='title'>Titre</FormLabel>
             <Input
+              ref={refs.titleRef}
               isRequired
+              name='title'
               type='text'
               boxShadow="inner"
               onChange={(event) => { setTitle(event.target.value) }}
             />
             <Box h={2} />
-            <FormLabel htmlFor='text'>Contenu</FormLabel>
+            <FormLabel htmlFor='content'>Contenu</FormLabel>
             <Textarea
+              ref={refs.contentRef}
               isRequired
+              name='content'
               placeholder='Écrire un article au format Markdown'
               size='sm'
               borderRadius={6}
@@ -271,16 +366,18 @@ function Create() {
               onChange={(event) => { setMarkedContent(event.target.value) }}
             />
             <Box h={2} />
-            <FormLabel htmlFor='text'>Auteur</FormLabel>
+            <FormLabel htmlFor='author'>Auteur</FormLabel>
             <Input
+              ref={refs.authorRef}
               isRequired
+              name='author'
               type='text'
               boxShadow="inner"
               onChange={(event) => { setAuthor(event.target.value) }}
             />
           </VStack>
         </FormControl>
-        <Button onClick={sendArticle}>Envoyer</Button>
+        <Button onClick={articleId === null ? sendArticle : sendEditedArticle}>Envoyer</Button>
         <Box h={4} />
         <Accordion w="100%" allowToggle border="1px" borderColor="gray.100" borderRadius={6}>
           <AccordionItem>

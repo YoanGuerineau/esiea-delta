@@ -11,7 +11,7 @@ import { EditIcon } from "@chakra-ui/icons"
 
 function Header() {
   const navigate = useNavigate();
-	const handleOnClick = useCallback(() => navigate('/create', { replace: true }), [navigate]);
+	const goToCreateArticle = useCallback(() => navigate('/create', { state: false, replace: true }), [navigate])
   const goToHomePage = useCallback(() => navigate('/', { replace: true }), [navigate]);
 
 
@@ -56,7 +56,7 @@ function Header() {
           leftIcon={<EditIcon />}
           variant="outline"
           borderRadius='full'
-          onClick={handleOnClick}
+          onClick={goToCreateArticle}
         >
           Écrire un article
         </Button>
