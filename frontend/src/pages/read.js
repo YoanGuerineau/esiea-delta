@@ -244,7 +244,7 @@ function Read() {
                 <Box w="100%">
                     <ReactMarkdown w="100%" components={ChakraUIRenderer()} children={data.content} skipHtml />
                 </Box>
-                <Text w="100%" textAlign="end" fontStyle="italic">NomAuteur</Text>
+                <Text w="100%" textAlign="end" fontStyle="italic">{data.author}</Text>
                 <Box h={8} />
                 <Heading py={2} alignSelf="flex-start" size="md">Commentaires</Heading>
                 <VStack w="100%" align="flex-start">

@@ -13,7 +13,6 @@ import {
 	useToast,
 	Spinner,
 	Select,
-	Spacer,
 	InputRightElement
 } from "@chakra-ui/react";
 import ArticleCard from '../components/article-card';
