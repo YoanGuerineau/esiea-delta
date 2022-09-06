@@ -11,8 +11,8 @@ import { EditIcon } from "@chakra-ui/icons"
 
 function Header() {
   const navigate = useNavigate();
-	const goToCreateArticle = useCallback(() => navigate('/create', { state: false, replace: true }), [navigate])
-  const goToHomePage = useCallback(() => navigate('/', { replace: true }), [navigate]);
+	const goToCreateArticle = useCallback(() => navigate('/esiea-delta/create', { state: false, replace: true }), [navigate])
+  const goToHomePage = useCallback(() => navigate('/esiea-delta', { replace: true }), [navigate]);
 
 
   return (
@@ -48,7 +48,7 @@ function Header() {
           size="lg"
           letterSpacing={"tighter"}
         >
-          <Link to="/">Delta</Link>
+          <Link to="/esiea-delta">Delta</Link>
         </Heading>
         <Spacer />
         <Button

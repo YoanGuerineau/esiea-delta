@@ -25,7 +25,7 @@ import ReactMarkdown from 'react-markdown'
 function Read() {
     const toast = useToast()
     const navigate = useNavigate()
-    const goBack = useCallback(() => navigate('/', { replace: true }), [navigate])
+    const goBack = useCallback(() => navigate('/esiea-delta', { replace: true }), [navigate])
     const articleId = useLocation().state
     const [data, setData] = useState({ comments: [] })
     const [refresh, setRefresh] = useState(false)
@@ -36,7 +36,7 @@ function Read() {
         inputRef: useRef(null),
         textareaRef: useRef(null)
     }
-    const goToEditArticle = useCallback(() => navigate('/create', { state: articleId, replace: true }), [navigate])
+    const goToEditArticle = useCallback(() => navigate('/esiea-delta/create', { state: articleId, replace: true }), [navigate])
 
     // Change document title page 
     useEffect(() => {
@@ -47,7 +47,7 @@ function Read() {
     
     // Get article data
     useEffect(() => {
-        fetch(`http://localhost:8080/api/private/article/${articleId}`)
+        fetch(`http://kubernetes.docker.internal/esiea-delta-backend/api/private/article/${articleId}`)
             .then((res) => res.json())
             .then((data) => {
                 setData(data)
@@ -63,7 +63,7 @@ function Read() {
     }, [refresh])
 
     function deleteArticle() {
-        fetch(`http://localhost:8080/api/private/article/${articleId}`, {
+        fetch(`http://kubernetes.docker.internal/esiea-delta-backend/api/private/article/${articleId}`, {
             method: 'DELETE'
         })
             .then(() => {
@@ -102,7 +102,7 @@ function Read() {
         }
 
         if (!editingComment.editing) {
-            fetch('http://localhost:8080/api/private/comment', {
+            fetch('http://kubernetes.docker.internal/esiea-delta-backend/api/private/comment', {
                 method: 'POST',
                 headers: {
                     'Accept': 'application/json',
@@ -138,7 +138,7 @@ function Read() {
                     })
                 })
         } else {
-            fetch('http://localhost:8080/api/private/comment', {
+            fetch('http://kubernetes.docker.internal/esiea-delta-backend/api/private/comment', {
                 method: 'PATCH',
                 headers: {
                     'Accept': 'application/json',
@@ -183,7 +183,7 @@ function Read() {
     }
 
     function deleteComment(id) {
-        fetch('http://localhost:8080/api/private/comment/' + String(id), {
+        fetch('http://kubernetes.docker.internal/esiea-delta-backend/api/private/comment/' + String(id), {
             method: 'DELETE'
         })
             .then(() => {

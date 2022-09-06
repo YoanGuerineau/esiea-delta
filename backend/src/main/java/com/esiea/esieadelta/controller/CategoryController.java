@@ -24,7 +24,7 @@ import com.esiea.esieadelta.wrapper.category.CompleteCategory;
 
 @CrossOrigin( origins = "*", allowedHeaders = "*" )
 @RestController
-@RequestMapping("/api/private/category")
+@RequestMapping("/esiea-delta-backend/api/private/category")
 public class CategoryController {
 
 	@Autowired

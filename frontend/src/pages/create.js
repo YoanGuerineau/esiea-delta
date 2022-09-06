@@ -35,7 +35,7 @@ function Create() {
   const toast = useToast()
   const colors = ['orange', 'blue', 'cyan', 'facebook', 'gray', 'green', 'linkedin', 'messenger', 'blackAlpha', 'pink', 'purple', 'red', 'teal', 'telegram', 'twitter', 'whatsapp', 'whiteAlpha', 'yellow']
   const navigate = useNavigate();
-  const goBack = useCallback(() => navigate('/', { replace: true }), [navigate])
+  const goBack = useCallback(() => navigate('/esiea-delta', { replace: true }), [navigate])
   const [title, setTitle] = useState('')
   const [author, setAuthor] = useState('')
   const [markedContent, setMarkedContent] = useState('')
@@ -56,7 +56,7 @@ function Create() {
       document.title = 'Nouvel article - Delta Blog'
       refs.titlePageRef.current.innerText = "Écrire un article"
     } else {
-      fetch(`http://localhost:8080/api/private/article/${articleId}`)
+      fetch(`http://kubernetes.docker.internal/esiea-delta-backend/api/private/article/${articleId}`)
         .then((res) => res.json())
         .then((data) => {
           document.title = 'Édition - Delta Blog'
@@ -81,7 +81,7 @@ function Create() {
   }, [articleId])
 
   useEffect(() => {
-    fetch('http://localhost:8080/api/private/category')
+    fetch('http://kubernetes.docker.internal/esiea-delta-backend/api/private/category')
       .then((res) => res.json())
       .then((data) => {
         setAllCategories(data)
@@ -131,7 +131,7 @@ function Create() {
 
       // Check if the category already exist
       if (!allCategories.some(el => el.name === newCategory.name)) {
-        fetch('http://localhost:8080/api/private/category', {
+        fetch('http://kubernetes.docker.internal/esiea-delta-backend/api/private/category', {
           method: 'POST',
           headers: {
             'Accept': 'application/json',
@@ -178,7 +178,7 @@ function Create() {
 
   // Send article to the server
   function sendArticle() {
-    fetch('http://localhost:8080/api/private/article', {
+    fetch('http://kubernetes.docker.internal/esiea-delta-backend/api/private/article', {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
@@ -203,7 +203,7 @@ function Create() {
           })
         } else {
           addedCategories.forEach((category) => {
-            fetch(`http://localhost:8080/api/private/category/${category.id}/${data.id}`, {
+            fetch(`http://kubernetes.docker.internal/esiea-delta-backend/api/private/category/${category.id}/${data.id}`, {
               method: 'POST'
             })
               .catch((e) => {
@@ -236,7 +236,7 @@ function Create() {
 
   // Send edited article
   function sendEditedArticle() {
-    fetch('http://localhost:8080/api/private/article', {
+    fetch('http://kubernetes.docker.internal/esiea-delta-backend/api/private/article', {
       method: 'PATCH',
       headers: {
         'Accept': 'application/json',
@@ -261,7 +261,7 @@ function Create() {
           })
         } else {
           addedCategories.forEach((category) => {
-            fetch(`http://localhost:8080/api/private/category/${category.id}/${data.id}`, {
+            fetch(`http://kubernetes.docker.internal/esiea-delta-backend/api/private/category/${category.id}/${data.id}`, {
               method: 'POST'
             })
               .catch((e) => {

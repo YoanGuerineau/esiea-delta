@@ -41,7 +41,7 @@ function Home() {
 		setLoader(true)
 		// Check selected category (all by default)
 
-		fetch('http://localhost:8080/api/private/article')
+		fetch('http://kubernetes.docker.internal/esiea-delta-backend/api/private/article')
 			.then(res => res.json())
 			.then(data => {
 				// Get articles from the selected category
@@ -68,7 +68,7 @@ function Home() {
 
 	// Get all categories
 	useEffect(() => {
-		fetch('http://localhost:8080/api/private/category')
+		fetch('http://kubernetes.docker.internal/esiea-delta-backend/api/private/category')
 			.then((res) => res.json())
 			.then((data) => {
 				setAllCategories(data)
@@ -101,7 +101,7 @@ function Home() {
 	// Get search articles
 	function getSearchArticles() {
 		setLoader(true)
-		fetch(`http://localhost:8080/api/private/article/search?title=${allTag[0] ? searchingString : ''
+		fetch(`http://kubernetes.docker.internal/esiea-delta-backend/api/private/article/search?title=${allTag[0] ? searchingString : ''
 			}&content=${allTag[1] ? searchingString : ''
 			}&author=${allTag[2] ? searchingString : ''
 			}`)

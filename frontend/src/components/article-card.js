@@ -14,7 +14,7 @@ import {
 function ArticleCard(props) {
 	const colors = ['orange','blue','cyan','facebook','gray','green','linkedin','messenger','blackAlpha','pink','purple','red','teal','telegram','twitter','whatsapp','whiteAlpha','yellow']
     const navigate = useNavigate();
-	const goToReadArticle = useCallback(() => navigate('/read', { state: props.data.id, replace: true }), [navigate]);
+	const goToReadArticle = useCallback(() => navigate('/esiea-delta/read', { state: props.data.id, replace: true }), [navigate]);
 
 	function preciseDate(rawDate) {
         const date = new Date(rawDate)

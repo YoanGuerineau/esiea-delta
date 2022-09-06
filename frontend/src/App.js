@@ -44,9 +44,9 @@ function App() {
               borderRadius={'2xl'}
             >
               <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/read" element={<Read />} />
-                <Route path="/create" element={<Create />} />
+                <Route path="/esiea-delta" element={<Home />} />
+                <Route path="/esiea-delta/read" element={<Read />} />
+                <Route path="/esiea-delta/create" element={<Create />} />
               </Routes>
             </Box>
           </Flex>

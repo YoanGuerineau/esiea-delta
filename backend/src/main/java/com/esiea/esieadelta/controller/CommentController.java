@@ -21,7 +21,7 @@ import com.esiea.esieadelta.wrapper.comment.CompleteComment;
 
 @CrossOrigin( origins = "*", allowedHeaders = "*" )
 @RestController
-@RequestMapping("/api/private/comment")
+@RequestMapping("/esiea-delta-backend/api/private/comment")
 public class CommentController {
 
 	@Autowired

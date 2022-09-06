@@ -26,7 +26,7 @@ import com.esiea.esieadelta.wrapper.article.CompleteArticle;
 
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController
-@RequestMapping("/api/private/article")
+@RequestMapping("/esiea-delta-backend/api/private/article")
 public class ArticleController {
 
 	@Autowired
